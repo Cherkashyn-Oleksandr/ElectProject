@@ -1,12 +1,17 @@
-import db from "../db.js"
+import {db} from "../db.js";
 
-export const getAllData = (req,res)=>{
+export const getAllData = async (req,res)=>{
+    
     const q = `Select "Area", "Group","Description" From "Counters"`
+     
+     const rows = db.query(q,'Electric')
+    var array = []
+     for await (const row of rows)
 
-    db.query(q,(err,data)=>{
-        if(err) return res.status(500).send(err);
+     array.push(row)
+     res.status(200).json(array)
+    
 
-        return res.status(200).json(data);
-        
-    })
+
+    
 }
