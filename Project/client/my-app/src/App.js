@@ -1,5 +1,6 @@
 import { createBrowserRouter,RouterProvider,Route,Outlet } from "react-router-dom";
 import Home from "./pages/Home"
+import Table from "./pages/Table"
 
 const Layout =()=> {
   return(
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
         path:"/",
         element:<Home/>
       },
+      {
+        path:"/table",
+        element:<Table/>
+      }
     ]
   },
 ]);
