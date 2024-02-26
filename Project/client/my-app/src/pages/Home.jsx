@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react"
 import {Link, useNavigate} from "react-router-dom"
 import axios from "axios"
 import CheckboxTree from "react-checkbox-tree"
+import Datetime from "react-datetime"
+import "moment/locale/et"
+import "react-datetime/css/react-datetime.css";
+import "react-checkbox-tree/lib/react-checkbox-tree.css";
 
 
 const Home = () => {
@@ -18,13 +22,70 @@ const Home = () => {
         };
         fetchData();
         
+        
     },);
+    function convertArray(originalArray) {
+        let result = [];
+    
+        // Create an object to hold temporary mappings
+        let tempMap = {};
+    
+        // Iterate over the original array
+        originalArray.forEach(item => {
+            // Extract relevant properties
+            let { Description, Area, Group } = item;
+    
+            // Check if Area already exists in tempMap
+            if (!tempMap[Area]) {
+                // If not, create a new object
+                tempMap[Area] = {
+                    value: Area,
+                    label: Area,
+                    children: []
+                };
+                result.push(tempMap[Area]);
+            }
+    
+            // Check if Group already exists in tempMap under the current Area
+            let groupIndex = tempMap[Area].children.findIndex(child => child.value === Group);
+            if (groupIndex === -1) {
+                // If not, create a new object
+                tempMap[Area].children.push({
+                    value: `${Group} ${Area}`,
+                    label: Group,
+                    children: []
+                });
+                groupIndex = tempMap[Area].children.length - 1;
+            }
+    
+            // Add the Description as a child under the current Group
+            tempMap[Area].children[groupIndex].children.push({
+                value: Description,
+                label: Description
+            });
+        });
+    
+        return result;
+    }
+    
     const [err,setError] = useState(null)
 
     const [checked, setChecked] = useState([])
 
-    
-   
+    const [filters, setFilters] = useState({
+        StartDate:null,
+        EndDate:null,
+
+    })
+    // Convert the array
+    let TagArray = convertArray(tags); 
+
+    const ChangeStartDate = e =>{
+        setFilters(prev=>({...prev, StartDate: e.toISOString()}))
+    }
+    const ChangeEndDate = e =>{
+        setFilters(prev=>({...prev, EndDate: e.toISOString()}))
+    }
     
     const navigate = useNavigate()
 
@@ -40,166 +101,8 @@ const Home = () => {
     const onExpand = (value) => {
         setExpanded(value);
     };
-    // example of array nees to connect database with treeview
-    const tests =
-    [
-    {
-        value: "Puurkaev PK2",
-        label: "Puurkaev PK2",
-        children:[
-        {
-            value: "Elektrienergia PK2", 
-            label: "Elektrienergia",
-            children:[
-                {
-                    value: "Puurkaev PK2 elektrienergia [kWh]",
-                    label: "Puurkaev PK2 elektrienergia [kWh]"
-                }
-            ]},
-            {
-            value: "Kulumootjad PK2", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK2 kulumootja [m3]",
-                    label: "Puurkaev PK2 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Puurkaev PK3",
-        label: "Puurkaev PK3",
-        children:[
-        {
-            value: "Elektrienergia PK3", 
-            label: "Elektrienergia",
-            children:[
-                {
-                    value: "Puurkaev PK3 elektrienergia [kWh]",
-                    label: "Puurkaev PK3 elektrienergia [kWh]"
-                }
-            ]},
-            {
-            value: "Kulumootjad PK3", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK3 kulumootja [m3]",
-                    label: "Puurkaev PK3 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Puurkaev PK1",
-        label: "Puurkaev PK1",
-        children:[
-        {
-            value: "Kulumootjad PK1", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK1 kulumootja [m3]",
-                    label: "Puurkaev PK1 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Puurkaev PK4",
-        label: "Puurkaev PK4",
-        children:[
-        {
-            value: "Kulumootjad PK4", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK4 kulumootja [m3]",
-                    label: "Puurkaev PK4 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Puurkaev PK5",
-        label: "Puurkaev PK5",
-        children:[
-        {
-            value: "Kulumootjad PK5", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK5 kulumootja [m3]",
-                    label: "Puurkaev PK5 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Puurkaev PK7",
-        label: "Puurkaev PK7",
-        children:[
-        {
-            value: "Kulumootjad PK7", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK7 kulumootja [m3]",
-                    label: "Puurkaev PK7 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Puurkaev PK8",
-        label: "Puurkaev PK8",
-        children:[
-        {
-            value: "Kulumootjad PK8", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Puurkaev PK8 kulumootja [m3]",
-                    label: "Puurkaev PK8 kulumootja [m3]"
-                }
-            ]
-        }
-        ]
-    },
-    {
-        value: "Veepuhastusjaam",
-        label: "Veepuhastusjaam",
-        children:[
-        {
-            value: "Kulumootjad", 
-            label: "Kulumootjad",
-            children:[
-                {
-                    value: "Veepuhastusjaama valjundi kulumootja [m3]",
-                    label: "Veepuhastusjaama valjundi kulumootja [m3]"
-                }
-            ]},
-            {
-                value: "Mootorite statiistika", 
-                label: "Mootorite statiistika",
-                children:[
-                    {
-                        value: "Filtrite puhuri BWBBL01 kaivitused",
-                        label: "Filtrite puhuri BWBBL01 kaivitused"
-                    }
-                ]
-            }
-            ]
-    },
+   
     
-    ]
     
     const getText = (html) =>{
         const doc = new DOMParser().parseFromString(html,"text/html")
@@ -209,7 +112,7 @@ const Home = () => {
     const handleSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.post("/data/all", {checked})
+         const res = await axios.post("/data/all", {checked, filters})
          console.log(res)
         SetData(res.data)
     }
@@ -221,47 +124,47 @@ const Home = () => {
    
 //treeview
     return (
-       <div>
+    <div>
         <div>
-        <CheckboxTree 
-            checked={checked}
-            expanded={expanded}
-            nodes={tests}
-            onCheck={onCheck}
-            onExpand={onExpand}
-        />  
-
-</div>
+            <div>
+                <CheckboxTree 
+                checked={checked}
+                expanded={expanded}
+                nodes={TagArray}
+                onCheck={onCheck}
+                onExpand={onExpand}
+                />  
+            </div>
         <div>
-        <button onClick={handleSubmit}>GetData</button>
+            <div>
+                <Datetime locale='et' className='StartDate' onChange={ChangeStartDate}/>
+            </div>
+            <div>
+                <Datetime locale='et' className='EndDate' onChange={ChangeEndDate}/>
+            </div>
+        </div>
+    </div>
+        <div>
+            <button onClick={handleSubmit}>GetData</button>
                 {err &&<p>{err}</p>}
         </div>               
         <div>
-            <div className='home'>
            <div className="posts">
-            
-            
-            
-           {AllData.map((data)=>(
-                <div className="post" key={data.Area}>
-                    
+                {AllData.map((data)=>(
+                <div className="post" key={data.Area}>   
                     <div className="content">
-                       
-                            <h1>{data.Group}</h1>
-                            <h1>{data.Area}</h1>
-                            <p>{getText(data.Description)}</p>
-                            <p>{getText(data.Realvalue)}</p>
-                            <p>{getText(data.Quality)}</p>
-                            <p>{getText(new Date(data.time))}</p>
-                            
-                        
+                        <h1>{data.Group}</h1>
+                        <h1>{data.Area}</h1>
+                        <p>{getText(data.Description)}</p>
+                        <p>{getText(data.Realvalue)}</p>
+                        <p>{getText(data.Quality)}</p>
+                        <p>{getText(new Date(data.time))}</p>   
                     </div>
                 </div>
-            ))}
+                ))}
             </div> 
         </div>
-        </div>
-</div> 
+    </div> 
     );
 }
 

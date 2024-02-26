@@ -1,5 +1,5 @@
-import dotenv from 'dotenv'
-import {InfluxDBClient, Point} from '@influxdata/influxdb3-client'
+import dotenv from "dotenv"
+import {InfluxDBClient, Point} from "@influxdata/influxdb3-client"
 
 dotenv.config()
 
