@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react"
+import React, {useState} from "react"
 import axios from "axios"
 const Table = () =>{
     const [err,setError] = useState(null)
     const [Dates, setDate] = useState([])
-    const getText = (html) =>{
-        const doc = new DOMParser().parseFromString(html,"text/html")
-        return doc.body.textContent
-      }
+    
     const handleSubmit = async e =>{
         e.preventDefault()
         try{

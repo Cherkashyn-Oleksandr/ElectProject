@@ -1,0 +1,47 @@
+.main-container {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .left-container, .right-container {
+    flex: 1; /* Равномерное распределение пространства между контейнерами */
+    display: flex;
+    justify-content: left; /* Выравнивание по горизонтал */
+    margin: 20px;
+    border: 1px solid black; /* Чёрные края */
+    border-radius: 10px; /* Округлённые углы */
+    padding: 20px; /* Внутренний отступ */
+    flex-direction: column;
+  }
+  
+  
+  .right-container {
+    display: flex;
+    flex-direction: column; /* Элементы внутри контейнера будут располагаться по вертикали */
+    justify-content: right;
+    align-items: center;
+  }
+  
+  .datetime {
+    display: flex;
+    align-items: center; /* Выравнивание по центру */
+  }
+  
+  .StartDate {
+    margin: 10px; /* Отступ между кнопками */
+  }
+
+  .EndDate {
+    margin: 10px; /* Отступ между кнопками */
+    
+  }
+  
+  .raport-button {
+    margin-top: 20px; /* Отступ сверху для третьей кнопки */
+  }
+
+  .label {
+    text-align: center; /* Выравнивание текста по центру */
+    margin-bottom: 10px; /* Отступ снизу */
+  }
+  

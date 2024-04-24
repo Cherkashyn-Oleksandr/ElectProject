@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react"
-import {Link, json, useNavigate} from "react-router-dom"
+import {useNavigate} from "react-router-dom"
 import axios from "axios"
 import CheckboxTree from "react-checkbox-tree"
 import Datetime from "react-datetime"
 import "moment/locale/et"
 import "react-datetime/css/react-datetime.css";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
-import Data from "./Data"
+import "../Home.css"
 
 
 const Home = () => {
@@ -15,7 +15,7 @@ const Home = () => {
     useEffect(()=>{
         const fetchData = async ()=>{
             try{
-                const res = await axios.get("http://localhost:8800/api/data");
+                const res = await axios.get("http://192.168.20.12:8800/api/data");
                 setTags(res.data);
             }catch(err){
                 console.log(err);
@@ -35,8 +35,6 @@ const Home = () => {
         EndDate:null,
 
     })
-    // Convert the array
-     
 
     const ChangeStartDate = e =>{
         setFilters(prev=>({...prev, StartDate: e.toISOString()}))
@@ -61,18 +59,13 @@ const Home = () => {
         setExpanded(value);
     };
    
-    
-    
-    const getText = (html) =>{
-        const doc = new DOMParser().parseFromString(html,"text/html")
-        return doc.body.textContent
-      }
      // get filters data
     const handleSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.post("http://localhost:8800/api/data/all", {checked, filters})
+         const res = await axios.post("http://192.168.20.12:8800/api/data/all", {checked, filters})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
+         sessionStorage.setItem('Dates',JSON.stringify(filters))
         navigate("/data")
     }
         catch(err){
@@ -83,11 +76,10 @@ const Home = () => {
    
 //treeview
     return (
-    <div>
-        <div>
-          
-            <div>
-                <CheckboxTree
+    <div className="main-container">
+            <div className="left-container">
+                <div className="label">Objektid</div>
+                <CheckboxTree className="checkbox"
                 checked={checked}
                 expanded={expanded}
                 nodes={tags}
@@ -95,19 +87,19 @@ const Home = () => {
                 onExpand={onExpand}
                 />  
             </div>
-        <div>
-            <div>
+        <div className="right-container">
+            <div className="datetime">
+                <div className="label">Alates
                 <Datetime locale='et' className='StartDate' onChange={ChangeStartDate}/>
-            </div>
-            <div>
+                </div>
+                <div className="label">Kuni
                 <Datetime locale='et' className='EndDate' onChange={ChangeEndDate}/>
+                </div>
             </div>
+            <div className="raport-button">
+            <button onClick={handleSubmit} >Raport</button>
+                {err &&<p>{err}</p>} 
         </div>
-    </div>
-        <div>
-            <button onClick={handleSubmit} >GetData</button>
-                {err &&<p>{err}</p>}
-                
         </div>               
     </div> 
     );
