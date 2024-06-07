@@ -12,7 +12,21 @@ import {useNavigate} from "react-router-dom"
 const Data = () =>{
     let exportColumns = []
     const navigate = useNavigate()
+    // create dates array
     const [dateTime, setDateTime] = useState('');
+    let columns = [] //columns for table
+    let chartArray = [] //Array for chart
+    var Dates = JSON.parse(sessionStorage.getItem('Dates')) //dates for chart option
+    var AllData = JSON.parse(sessionStorage.getItem('Array')) //data for table
+    if(AllData != null){
+        columns = Object.keys(AllData[0]).map(key => ({
+        field: key,
+        header: key
+    }));
+    chartArray = transformArray(AllData)
+    exportColumns = columns.map((col) => ({ title: col.header, dataKey: col.field }));
+}
+    // create csv
     const dt = useRef(null);
     const exportCSV = (selectionOnly) => {
         dt.current.exportCSV({ selectionOnly });
@@ -31,7 +45,7 @@ const Data = () =>{
             });
         });
     };
-
+    // create excel file 
     const exportExcel = () => {
         import('xlsx').then((xlsx) => {
             const worksheet = xlsx.utils.json_to_sheet(AllData);
@@ -40,10 +54,10 @@ const Data = () =>{
                 bookType: 'xlsx',
                 type: 'array'
             });
-
             saveAsExcelFile(excelBuffer, `Raport ${dateTime}`);
         });
     };
+    // save excel file
     const saveAsExcelFile = (buffer, fileName) => {
         import('file-saver').then((module) => {
             if (module && module.default) {
@@ -52,11 +66,11 @@ const Data = () =>{
                 const data = new Blob([buffer], {
                     type: EXCEL_TYPE
                 });
-
                 module.default.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
             }
         });
     };
+    //create header for primetable
     const header = (
         <div className="flex align-items-center justify-content-end gap-2">
             <Button type="button" icon="pi pi-file" rounded onClick={() => exportCSV(false)} data-pr-tooltip="CSV" />
@@ -64,7 +78,7 @@ const Data = () =>{
 <Button type="button" icon="pi pi-file-pdf" severity="warning" rounded onClick={exportPdf} data-pr-tooltip="PDF" />
         </div>
     );
-  // Функция для получения текущей даты и времени
+  // func for getting current date
   useEffect(() => {
     const getCurrentDateTime = () => {
       const now = new Date();
@@ -72,9 +86,9 @@ const Data = () =>{
       const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
       return `${date} ${time}`;
     };
-
     setDateTime(getCurrentDateTime());
   }, []);
+  //back to homepage button func
   const handleSubmit = async ()=>{
     try{
         navigate("/")
@@ -83,47 +97,29 @@ const Data = () =>{
         console.log(err)
     }
   }
+    //options for googlecharts
     const options = {
         chart: {
           title: "Objekt",
           subtitle: "15.4.2024 - 17.4.2024",
         },
       };
-    let columns = []
-    let chartArray = []
-    var Dates = JSON.parse(sessionStorage.getItem('Dates'))
-    var AllData = JSON.parse(sessionStorage.getItem('Array'))
-    if(AllData != null){
-        columns = Object.keys(AllData[0]).map(key => ({
-        field: key,
-        header: key
-    }));
-    chartArray = transformArray(AllData)
-    exportColumns = columns.map((col) => ({ title: col.header, dataKey: col.field }));
-}
+
+//func for creating chart array
 function transformArray(originalArray) {
-    // Получаем заголовки из первого элемента исходного массива
-    
+    // collect headers 
     const headers = Object.keys(originalArray[0]).filter(key => key.includes("Loendur")).map(header => header.replace(" Loendur", ""));
 console.log(headers)
-    // Создаем новый массив и добавляем заголовки
+    // Create new array
     const newArray = [["Kuupaev", ...headers]];
-
-    // Проходим по исходному массиву и добавляем значения
-    // Проходим по исходному массиву и добавляем значения
     originalArray.forEach(item => {
-        // Создаем новый массив для текущей строки
         const row = [item["Kuupaev"]];
-
-        // Извлекаем значения из объекта и добавляем их в массив
+        // get data from array
         headers.forEach(header => {
             row.push(item[header]);
         });
-
-        // Добавляем текущую строку в новый массив
         newArray.push(row);
     });
-
     return newArray;
 }
     return(

@@ -10,7 +10,4 @@ router.post("/all", getFilterData)
 router.get("/table", getData)
 router.post("/login",login)
 
-
-
-
 export default router

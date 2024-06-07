@@ -26,10 +26,24 @@
   .right-container {
     display: flex;
     flex-direction: column; /* Элементы внутри контейнера будут располагаться по вертикали */
-    justify-content: right;
     align-items: center;
   }
   
+  .object-filter {
+    display: flex;
+    flex-direction: row;
+    align-items: left;
+  }
+
+  .data-filters {
+    margin: 5px;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+    margin: 5px;
+  }
+
   .datetime {
     display: flex;
     align-items: center; /* Выравнивание по центру */
