@@ -15,7 +15,7 @@ const Home = () => {
     useEffect(()=>{
         const fetchData = async ()=>{
             try{
-                const res = await axios.get("http://192.168.20.12:8800/api/data");
+                const res = await axios.get("http://192.168.20.17:8800/api/data");
                 setTags(res.data);
             }catch(err){
                 console.log(err);
@@ -63,7 +63,7 @@ const Home = () => {
     const handleSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.post("http://192.168.20.12:8800/api/data/all", {checked, filters})
+         const res = await axios.post("http://192.168.20.17:8800/api/data/all", {checked, filters})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(filters))
         navigate("/data")
