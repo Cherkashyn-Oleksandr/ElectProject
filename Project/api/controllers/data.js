@@ -33,7 +33,7 @@ export function convertArray(originalArray) {
         let descriptionIndex = tempMap[Area].children[groupIndex].children.findIndex(child => child.label === Description);
         if(descriptionIndex === -1) {
         tempMap[Area].children[groupIndex].children.push({
-            value: `${Description}, ${idCounter}`,
+            value: `${Description}, ${Group}`,
             label: Description
         });
     }
@@ -42,12 +42,20 @@ export function convertArray(originalArray) {
 }
 export function getArray(originalArray) {
     const result = {};
+
     // getting difference foreach date 
     originalArray.forEach(item => {
         const date = new Date(item._time);
         const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
-        const key = `${item.Area}-${item.Description}-${item.Group}:${formattedDate}`;
-        const existingItem = result[key];
+        const key = `${item.Area}-${item.Description}-${item.Group}`;
+        
+
+        if (!result[key]) {
+            result[key] = {};
+        }
+
+        const existingItem = result[key][formattedDate];
+
         // adding difference if Loendur grow
         if (existingItem) {
             const difference = item.Realvalue - existingItem.Loendur;
@@ -56,11 +64,11 @@ export function getArray(originalArray) {
                 existingItem.Difference += difference; 
             }
         } else {
-            //create new object
-            result[key] = {
+            // create new object
+            result[key][formattedDate] = {
                 Area: item.Area,
-                Description: item.Description, 
-                Group: item.Group, 
+                Description: item.Description,
+                Group: item.Group,
                 Kuupaev: formattedDate,
                 Loendur: item.Realvalue,
                 Difference: 0,
@@ -68,44 +76,80 @@ export function getArray(originalArray) {
             };
         }
     });
+
     // get difference between last Loendur previous date and first Loendur next day
-    const dates = Object.keys(result);
-    for (let i = 1; i < dates.length; i++) {
-        const currentDate = result[dates[i]];
-        const previousDate = result[dates[i - 1]];
-        const difference = currentDate.StartLoendur - previousDate.Loendur;
-        if (difference > 0) {
-            currentDate.Difference += difference;
+    const finalResult = [];
+    Object.keys(result).forEach(key => {
+        const dates = Object.keys(result[key]).sort((a, b) => new Date(a.split(":")[1]) - new Date(b.split(":")[1]));
+        for (let i = 0; i < dates.length; i++) {
+            const currentDate = result[key][dates[i]];
+            if (i > 0) {
+                const previousDate = result[key][dates[i - 1]];
+                const difference = currentDate.StartLoendur - previousDate.Loendur;
+                if (difference > 0) {
+                    currentDate.Difference += difference;
+                }
+            }
+            finalResult.push(currentDate);
         }
-        //creating array
-    }
-    const convertedArray = Object.values(result);
-    return convertedArray;
+    });
+
+    return finalResult;
 }
 export function transformArray(originalArray) {
     const transformedArray = [];
-    //creating object for every date
     const dates = {};
+
+    // Создание объекта для каждой даты
     originalArray.forEach(item => {
         const date = item.Kuupaev;
         if (!dates[date]) {
             dates[date] = { Kuupaev: date };
         }
     });
-    // adding  data to object foreach description
+
+    // Сбор уникальных значений Group и Area
+    const uniqueGroupAreas = Array.from(new Set(originalArray.map(item => `${item.Area}/${item.Group}`)));
+
+    // Добавление данных в объект для каждого описания и группы
     originalArray.forEach(item => {
         const date = item.Kuupaev;
-        const descriptionKey = `${item.Area}/${item.Group}`;
-        const descLoendur = `${item.Description} Loendur`;
-        if (!dates[date][descriptionKey]) {
-            dates[date][descriptionKey] = "";
+        const groupAreaKey = `${item.Area} ${item.Group}`;
+        const groupDescriptionKey = `${item.Group} ${item.Description}`;
+        const descLoendurKey = `${groupDescriptionKey} Loendur`;
+
+        // Убедитесь, что ключ area/group существует и является пустой строкой
+        if (!dates[date][groupAreaKey]) {
+            dates[date][groupAreaKey] = '';
         }
-        dates[date][item.Description] = item.Difference;
-        dates[date][descLoendur] = item.Loendur;
+
+        // Добавьте ключи описания и лоендера с их значениями
+        dates[date][groupDescriptionKey] = item.Difference;
+        dates[date][descLoendurKey] = item.Loendur;
     });
-    //creating array
-    Object.values(dates).forEach(day => {
-        transformedArray.push(day);
+
+    // Создание массива и обеспечение порядка групп
+    Object.keys(dates).forEach(dateKey => {
+        const day = dates[dateKey];
+        const orderedDay = { Kuupaev: day.Kuupaev };
+
+        uniqueGroupAreas.forEach(groupArea => {
+            const areaGroupKey = groupArea;
+
+            // Убедитесь, что ключ area/group существует и является пустой строкой
+            if (!day[areaGroupKey]) {
+                orderedDay[areaGroupKey] = '';
+            }
+
+            // Добавьте ключи группы описания и лоендера в порядке
+            Object.keys(day).forEach(key => {
+                if (key.startsWith(groupArea.split('/')[1])) {
+                    orderedDay[key] = day[key];
+                }
+            });
+        });
+
+        transformedArray.push(orderedDay);
     });
 
     return transformedArray;
@@ -118,7 +162,12 @@ export function getHourlyArray(originalArray) {
         const date = new Date(item._time);
         const formattedHour = `${date.getHours()}:00 ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
         const key = `${item.Area}-${item.Description}-${item.Group}:${date.getHours()}`;
-        const existingItem = result[key];
+        
+        if (!result[key]) {
+            result[key] = {};
+        }
+
+        const existingItem = result[key][formattedHour];
 
         // Adding difference if Loendur grows
         if (existingItem) {
@@ -129,7 +178,7 @@ export function getHourlyArray(originalArray) {
             }
         } else {
             // Create new object
-            result[key] = {
+            result[key][formattedHour] = {
                 Area: item.Area,
                 Description: item.Description,
                 Group: item.Group,
@@ -142,51 +191,36 @@ export function getHourlyArray(originalArray) {
     });
 
     // Get difference between last Loendur of previous hour and first Loendur of next hour
-    const hours = Object.keys(result);
-    for (let i = 1; i < hours.length; i++) {
-        const currentHour = result[hours[i]];
-        const previousHour = result[hours[i - 1]];
-        const difference = currentHour.StartLoendur - previousHour.Loendur;
-        if (difference > 0) {
-            currentHour.Difference += difference;
-        }
-    }
+    const finalResult = [];
+    Object.keys(result).forEach(key => {
+        const hours = Object.keys(result[key]).sort((a, b) => new Date(a.split(":")[1]) - new Date(b.split(":")[1]));
 
-    const convertedArray = Object.values(result);
-    return convertedArray;
+        for (let i = 0; i < hours.length; i++) {
+            const currentHour = result[key][hours[i]];
+            if (i > 0) {
+                const previousHour = result[key][hours[i - 1]];
+                const difference = currentHour.StartLoendur - previousHour.Loendur;
+                if (difference > 0) {
+                    currentHour.Difference += difference;
+                }
+            }
+            finalResult.push(currentHour);
+        }
+    });
+
+    return finalResult;
+}
+export function splitArray(strings) {
+    const result = [];
+
+    strings.forEach(string => {
+        const [Description, Group] = string.split(', ');
+        result.push({ Group, Description });
+    });
+
+    return result;
 }
 
-export function transformHourlyArray(originalArray) {
-    const transformedArray = [];
-
-    // Creating object for every hour
-    const hours = {};
-    originalArray.forEach(item => {
-        const hour = item.Kuupaev;
-        if (!hours[hour]) {
-            hours[hour] = { Kuupaev: hour };
-        }
-    });
-
-    // Adding data to object for each description
-    originalArray.forEach(item => {
-        const hour = item.Kuupaev;
-        const descriptionKey = `${item.Area}/${item.Group}`;
-        const descLoendur = `${item.Description} Loendur`;
-        if (!hours[hour][descriptionKey]) {
-            hours[hour][descriptionKey] = "";
-        }
-        hours[hour][item.Description] = item.Difference;
-        hours[hour][descLoendur] = item.Loendur;
-    });
-
-    // Creating array
-    Object.values(hours).forEach(hour => {
-        transformedArray.push(hour);
-    });
-
-    return transformedArray;
-}
 /*let mailOptions = {
     from: 'oleks.cherkashyn@gmail.com',
     to: 'samsungmarvel2@gmail.com',

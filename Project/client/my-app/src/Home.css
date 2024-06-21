@@ -16,10 +16,11 @@
     display: flex;
     justify-content: left; /* Выравнивание по горизонтал */
     margin: 20px;
-    border: 1px solid black; /* Чёрные края */
-    border-radius: 10px; /* Округлённые углы */
+    border: 2px solid black; /* Чёрные края */
+    border-radius: 4px; /* Округлённые углы */
     padding: 20px; /* Внутренний отступ */
     flex-direction: column;
+    overflow: auto;
   }
   
   

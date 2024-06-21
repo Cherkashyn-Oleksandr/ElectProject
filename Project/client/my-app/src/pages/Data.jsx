@@ -18,6 +18,7 @@ const Data = () =>{
     let chartArray = [] //Array for chart
     var Dates = JSON.parse(sessionStorage.getItem('Dates')) //dates for chart option
     var AllData = JSON.parse(sessionStorage.getItem('Array')) //data for table
+    console.log(AllData)
     if(AllData != null){
         columns = Object.keys(AllData[0]).map(key => ({
         field: key,
@@ -98,10 +99,11 @@ const Data = () =>{
     }
   }
     //options for googlecharts
+    console.log(Dates)
     const options = {
         chart: {
           title: "Objekt",
-          subtitle: "15.4.2024 - 17.4.2024",
+          //subtitle: "15.4.2024 - 17.4.2024",
         },
       };
 
@@ -109,7 +111,6 @@ const Data = () =>{
 function transformArray(originalArray) {
     // collect headers 
     const headers = Object.keys(originalArray[0]).filter(key => key.includes("Loendur")).map(header => header.replace(" Loendur", ""));
-console.log(headers)
     // Create new array
     const newArray = [["Kuupaev", ...headers]];
     originalArray.forEach(item => {
@@ -142,13 +143,13 @@ console.log(headers)
                 ))}
             </DataTable>
         </div>
-        {console.log(Dates)}
         <div>
         <Chart
       chartType="Bar"
       width="100%"
       height="400px"
       data={chartArray}
+      
       options={options}
     />
         </div>

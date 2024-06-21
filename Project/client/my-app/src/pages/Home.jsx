@@ -153,7 +153,6 @@ const Array = tags.filter(item => {
                 </div>
             </div>
             <div className="checkbox-hourly">
-            
                 <Checkbox
                 label="Päeva Raport"
                 value={boxchecked}
