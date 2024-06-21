@@ -2,6 +2,7 @@ import { createBrowserRouter,RouterProvider,Route,Outlet } from "react-router-do
 import Home from "./pages/Home"
 import Table from "./pages/Table"
 import Data from "./pages/Data"
+import Login from "./pages/Login"
 
 const Layout =()=> {
   return(
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path:"/data",
         element:<Data/>
+      },
+      {
+        path:"/login",
+        element:<Login/>
       }
     ]
   },

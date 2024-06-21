@@ -3,25 +3,48 @@
     height: 100vh;
   }
   
+  button{
+    padding: 10px;
+    border: none;
+    background-color: teal;
+    cursor: pointer;
+    color: white;
+
+}
   .left-container, .right-container {
     flex: 1; /* Равномерное распределение пространства между контейнерами */
     display: flex;
     justify-content: left; /* Выравнивание по горизонтал */
     margin: 20px;
-    border: 1px solid black; /* Чёрные края */
-    border-radius: 10px; /* Округлённые углы */
+    border: 2px solid black; /* Чёрные края */
+    border-radius: 4px; /* Округлённые углы */
     padding: 20px; /* Внутренний отступ */
     flex-direction: column;
+    overflow: auto;
   }
   
   
   .right-container {
     display: flex;
     flex-direction: column; /* Элементы внутри контейнера будут располагаться по вертикали */
-    justify-content: right;
     align-items: center;
   }
   
+  .object-filter {
+    display: flex;
+    flex-direction: row;
+    align-items: left;
+  }
+
+  .data-filters {
+    margin: 5px;
+  }
+
+  .filter-buttons {
+    flex-direction: column;
+    margin: 5px;
+  }
+
   .datetime {
     display: flex;
     align-items: center; /* Выравнивание по центру */
@@ -44,4 +67,49 @@
     text-align: center; /* Выравнивание текста по центру */
     margin-bottom: 10px; /* Отступ снизу */
   }
-  
+  .auth{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    
+
+    h1{
+        font-size: 20px;
+        color:teal;
+        margin-bottom: 20px;
+    }
+    form{
+        display:flex;
+        flex-direction: column;
+        padding: 50px;
+        background-color: white;
+        width: 200px;
+        gap: 20px;
+        input{
+            padding: 10px;
+            border: none;
+            border-bottom: 1px solid gray;
+        }
+        button{
+            padding: 10px;
+            border: none;
+            background-color: teal;
+            cursor: pointer;
+            color: white;
+
+        }
+
+        p{
+            font-size: 12px;
+            color: red;
+            text-align: center;
+        }
+        span{
+            font-size: 12px;
+            text-align: center;
+
+        }
+    }
+  }
