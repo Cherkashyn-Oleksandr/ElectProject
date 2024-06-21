@@ -21,17 +21,6 @@ const Home = () => {
     //accepting data from influx, needs to change array format for treeview
     const [tags, setTags] = useState([]);
     useEffect(()=>{
-<<<<<<< HEAD
-        const fetchData = async ()=>{
-            try{
-                const res = await axios.get("http://192.168.20.17:8800/api/data");
-                setTags(res.data);
-            }catch(err){
-                console.log(err);
-            }
-        };
-=======
->>>>>>> 35aae33bad0bc4a4d7eea1c45b3324ae063e647f
         fetchData();
     },[]);
     
@@ -80,11 +69,7 @@ const Home = () => {
     const handleSubmit = async e =>{
         e.preventDefault()
         try{
-<<<<<<< HEAD
-         const res = await axios.post("http://192.168.20.17:8800/api/data/all", {checked, filters})
-=======
          const res = await axios.post("http://localhost:8800/api/data/all", {checked, filters, boxchecked})
->>>>>>> 35aae33bad0bc4a4d7eea1c45b3324ae063e647f
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(filters))
         navigate("/data")
