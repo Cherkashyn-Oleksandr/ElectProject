@@ -45,6 +45,10 @@ export const getAllData = async (req,res)=>{
 export const getFilterData = async (req,res) =>{
   let newarray = []
   let finalarray = []
+  console.log(req.body.checked[0])
+  if(req.body.checked[0] == undefined){
+    return res.status(404).json("Select objects")
+  }
     const tagArray = splitArray(req.body.checked)
     let array = []
     //check if client insert date filters
