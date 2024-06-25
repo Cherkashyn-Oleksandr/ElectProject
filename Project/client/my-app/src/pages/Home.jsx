@@ -162,9 +162,10 @@ const Array = tags.filter(item => {
             </div>
             <div className="raport-button">
             <button onClick={handleSubmit} >Raport</button>
-                {err &&<p>{err}</p>} 
+                
                 
         </div>
+        {err &&<p>{err}</p>} 
         </div>               
     </div> 
     );

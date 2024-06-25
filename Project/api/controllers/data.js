@@ -124,8 +124,8 @@ export function transformArray(originalArray) {
         }
 
         // Добавьте ключи описания и лоендера с их значениями
-        dates[date][groupDescriptionKey] = item.Difference;
-        dates[date][descLoendurKey] = item.Loendur;
+        dates[date][groupDescriptionKey] = item.Difference.toFixed(1);
+        dates[date][descLoendurKey] = item.Loendur.toFixed(1);
     });
 
     // Создание массива и обеспечение порядка групп
