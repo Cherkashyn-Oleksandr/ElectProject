@@ -18,7 +18,6 @@ const Data = () =>{
     let chartArray = [] //Array for chart
     var Dates = JSON.parse(sessionStorage.getItem('Dates')) //dates for chart option
     var AllData = JSON.parse(sessionStorage.getItem('Array')) //data for table
-    console.log(AllData)
     if(AllData != null){
         columns = Object.keys(AllData[0]).map(key => ({
         field: key,
@@ -99,7 +98,6 @@ const Data = () =>{
     }
   }
     //options for googlecharts
-    console.log(Dates)
     const options = {
         chart: {
           title: "Objekt",
@@ -109,20 +107,21 @@ const Data = () =>{
 
 //func for creating chart array
 function transformArray(originalArray) {
-    // collect headers 
+    // Collect headers
     const headers = Object.keys(originalArray[0]).filter(key => key.includes("Loendur")).map(header => header.replace(" Loendur", ""));
     // Create new array
     const newArray = [["Kuupaev", ...headers]];
     originalArray.forEach(item => {
         const row = [item["Kuupaev"]];
-        // get data from array
+        // Get data from array and convert to float
         headers.forEach(header => {
-            row.push(item[header]);
+            row.push(parseFloat(item[header]));
         });
         newArray.push(row);
     });
     return newArray;
 }
+console.log(AllData)
     return(
     <div>
         <div>
@@ -149,7 +148,6 @@ function transformArray(originalArray) {
       width="100%"
       height="400px"
       data={chartArray}
-      
       options={options}
     />
         </div>
