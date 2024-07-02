@@ -100,7 +100,7 @@ export function transformArray(originalArray) {
     const transformedArray = [];
     const dates = {};
 
-    // Создание объекта для каждой даты
+    // Create new object for date
     originalArray.forEach(item => {
         const date = item.Kuupaev;
         if (!dates[date]) {
@@ -108,27 +108,39 @@ export function transformArray(originalArray) {
         }
     });
 
-    // Сбор уникальных значений Group и Area
+    // collect unique Area & Group
     const uniqueGroupAreas = Array.from(new Set(originalArray.map(item => `${item.Area}/${item.Group}`)));
 
-    // Добавление данных в объект для каждого описания и группы
+    // Add object for each unique Area & Group
     originalArray.forEach(item => {
         const date = item.Kuupaev;
         const groupAreaKey = `${item.Area} ${item.Group}`;
         const groupDescriptionKey = `${item.Group} ${item.Description}`;
         const descLoendurKey = `${groupDescriptionKey} Loendur`;
 
-        // Убедитесь, что ключ area/group существует и является пустой строкой
+        // groupAreaKey is ok
         if (!dates[date][groupAreaKey]) {
             dates[date][groupAreaKey] = '';
         }
+        // round data
+        const differenceRound = item.Difference - Math.floor(item.Difference)
+        const loendurRound = item.Loendur - Math.floor(item.Loendur)
 
-        // Добавьте ключи описания и лоендера с их значениями
-        dates[date][groupDescriptionKey] = item.Difference.toFixed(1);
-        dates[date][descLoendurKey] = item.Loendur.toFixed(1);
+        if(differenceRound < 0.5){
+            dates[date][groupDescriptionKey] = Math.round(item.Difference)
+        }
+        else{
+            dates[date][groupDescriptionKey] = Math.round(item.Difference * 10) / 10
+        }
+        if(loendurRound < 0.5){
+            dates[date][descLoendurKey] = Math.round(item.Loendur)
+        }
+        else{
+            dates[date][descLoendurKey] = Math.round(item.Loendur * 10) / 10
+        }
     });
 
-    // Создание массива и обеспечение порядка групп
+    // create array
     Object.keys(dates).forEach(dateKey => {
         const day = dates[dateKey];
         const orderedDay = { Kuupaev: day.Kuupaev };
@@ -136,12 +148,12 @@ export function transformArray(originalArray) {
         uniqueGroupAreas.forEach(groupArea => {
             const areaGroupKey = groupArea;
 
-            // Убедитесь, что ключ area/group существует и является пустой строкой
+            // areaGroupKey is ok
             if (!day[areaGroupKey]) {
                 orderedDay[areaGroupKey] = '';
             }
 
-            // Добавьте ключи группы описания и лоендера в порядке
+            // add keys with loendur
             Object.keys(day).forEach(key => {
                 if (key.startsWith(groupArea.split('/')[1])) {
                     orderedDay[key] = day[key];

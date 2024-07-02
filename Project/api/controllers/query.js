@@ -6,10 +6,12 @@ export const getAllData = async (req,res)=>{
   let array = [];
   let fluxQuery = `
   from(bucket: "${bucket}")
-    |> range(start: -1y)  
+    |> range(start: -1d)  
     |> filter(fn: (r) => r._measurement == "Data")
     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
-    |> keep(columns: ["_time", "Description", "Area", "Group"])`
+    |> keep(columns: ["_time", "Description", "Area", "Group"])
+    |> group(columns: ["Group"])
+    |> sort(columns: ["Group"], desc: false)`
     
   try {
    
@@ -38,6 +40,7 @@ export const getAllData = async (req,res)=>{
     console.error('Error querying data:', error);
     res.status(500).json({ error: error.message });
   }   
+  console.log(array)
   newarray = convertArray(array);
   res.status(200).json(newarray);
 }
