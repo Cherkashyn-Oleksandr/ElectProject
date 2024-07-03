@@ -46,7 +46,9 @@ export function getArray(originalArray) {
     // getting difference foreach date 
     originalArray.forEach(item => {
         const date = new Date(item._time);
-        const formattedDate = `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const formattedDate = `${day}.${month}.${date.getFullYear()}`;
         const key = `${item.Area}-${item.Description}-${item.Group}`;
         
 
@@ -115,8 +117,8 @@ export function transformArray(originalArray) {
     originalArray.forEach(item => {
         const date = item.Kuupaev;
         const groupAreaKey = `${item.Area} ${item.Group}`;
-        const groupDescriptionKey = `${item.Group} ${item.Description}`;
-        const descLoendurKey = `${groupDescriptionKey} Loendur`;
+        const groupDescriptionKey = `${item.Group}-${item.Description}`;
+        const descLoendurKey = `${item.Group} ${item.Description} Loendur`;
 
         // groupAreaKey is ok
         if (!dates[date][groupAreaKey]) {

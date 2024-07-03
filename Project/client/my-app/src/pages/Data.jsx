@@ -82,8 +82,12 @@ const Data = () =>{
   useEffect(() => {
     const getCurrentDateTime = () => {
       const now = new Date();
-      const date = `${now.getDate()}.${now.getMonth() + 1}.${now.getFullYear()}`;
-      const time = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+      const hour = now.getHours().toString().padStart(2, '0');
+      const minute = now.getMinutes().toString().padStart(2, '0');
+      const day = now.getDate().toString().padStart(2, '0');
+      const month = (now.getMonth() + 1).toString().padStart(2, '0');
+      const date = `${day}.${month}.${now.getFullYear()}`;
+      const time = `${hour}:${minute}`;
       return `${date} ${time}`;
     };
     setDateTime(getCurrentDateTime());
@@ -108,7 +112,8 @@ const Data = () =>{
 //func for creating chart array
 function transformArray(originalArray) {
     // Collect headers
-    const headers = Object.keys(originalArray[0]).filter(key => key.includes("Loendur")).map(header => header.replace(" Loendur", ""));
+    console.log(originalArray[0])
+    const headers = Object.keys(originalArray[0]).filter(key => key.includes("-"));
     // Create new array
     const newArray = [["Kuupaev", ...headers]];
     originalArray.forEach(item => {
@@ -121,7 +126,6 @@ function transformArray(originalArray) {
     });
     return newArray;
 }
-console.log(AllData)
     return(
     <div>
         <div>
