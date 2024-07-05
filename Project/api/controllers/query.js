@@ -212,8 +212,7 @@ export const getFilterData = async (req,res) =>{
             }
         }
     }
-    
-    if(req.body.boxchecked == true){
+    if(req.body.hourchecked == true){
    finalarray = getHourlyArray(array)
 
   }
