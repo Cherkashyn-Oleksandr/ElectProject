@@ -172,9 +172,10 @@ export function getHourlyArray(originalArray) {
         const hour = date.getHours().toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const formattedHour = `${hour}:00 ${day}.${month}.${date.getFullYear()}`;
-        const key = `${item.Area}-${item.Description}-${item.Group}:${date.getHours()}`;
-        
+        const year = date.getFullYear();
+        const formattedHour = `${hour}:00 ${day}.${month}.${year}`;
+        const key = `${item.Area}-${item.Description}-${item.Group}`;
+
         if (!result[key]) {
             result[key] = {};
         }
@@ -205,8 +206,8 @@ export function getHourlyArray(originalArray) {
     // Get difference between last Loendur of previous hour and first Loendur of next hour
     const finalResult = [];
     Object.keys(result).forEach(key => {
-        const hours = Object.keys(result[key]).sort((a, b) => new Date(a.split(":")[1]) - new Date(b.split(":")[1]));
-
+        const hours = Object.keys(result[key]).sort((a, b) => new Date(a.split(" ")[1].split(".").reverse().join("-") + ' ' + a.split(" ")[0]) - new Date(b.split(" ")[1].split(".").reverse().join("-") + ' ' + b.split(" ")[0]));
+        console.log(result[key])
         for (let i = 0; i < hours.length; i++) {
             const currentHour = result[key][hours[i]];
             if (i > 0) {
