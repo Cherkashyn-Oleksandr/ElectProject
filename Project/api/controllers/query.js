@@ -40,7 +40,6 @@ export const getAllData = async (req,res)=>{
     console.error('Error querying data:', error);
     res.status(500).json({ error: error.message });
   }   
-  console.log(array)
   newarray = convertArray(array);
   res.status(200).json(newarray);
 }

@@ -128,17 +128,14 @@ export function transformArray(originalArray) {
         const differenceRound = item.Difference - Math.floor(item.Difference)
         const loendurRound = item.Loendur - Math.floor(item.Loendur)
 
-        if(differenceRound < 0.5){
-            dates[date][groupDescriptionKey] = Math.round(item.Difference)
-        }
-        else{
-            dates[date][groupDescriptionKey] = Math.round(item.Difference * 10) / 10
-        }
-        if(loendurRound < 0.5){
-            dates[date][descLoendurKey] = Math.round(item.Loendur)
-        }
-        else{
-            dates[date][descLoendurKey] = Math.round(item.Loendur * 10) / 10
+        if (differenceRound < 0.5 && loendurRound < 0.5) {
+            dates[date][groupDescriptionKey] = `${Math.round(item.Difference)} (${Math.round(item.Loendur)})`;
+        } else if (differenceRound >= 0.5 && loendurRound < 0.5) {
+            dates[date][groupDescriptionKey] = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur)})`;
+        } else if (differenceRound >= 0.5 && loendurRound >= 0.5) {
+            dates[date][groupDescriptionKey] = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur * 10) / 10})`;
+        } else {
+            dates[date][groupDescriptionKey] = `${Math.round(item.Difference)} (${Math.round(item.Loendur * 10) / 10})`;
         }
     });
 
@@ -165,7 +162,7 @@ export function transformArray(originalArray) {
 
         transformedArray.push(orderedDay);
     });
-
+    console.log(transformedArray)
     return transformedArray;
 }
 export function getHourlyArray(originalArray) {
@@ -174,7 +171,10 @@ export function getHourlyArray(originalArray) {
     // Getting difference for each hour
     originalArray.forEach(item => {
         const date = new Date(item._time);
-        const formattedHour = `${date.getHours()}:00 ${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+        const hour = date.getHours().toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const formattedHour = `${hour}:00 ${day}.${month}.${date.getFullYear()}`;
         const key = `${item.Area}-${item.Description}-${item.Group}:${date.getHours()}`;
         
         if (!result[key]) {

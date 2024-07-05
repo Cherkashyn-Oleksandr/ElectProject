@@ -12,13 +12,13 @@
 
 }
   .left-container, .right-container {
-    flex: 1; /* Равномерное распределение пространства между контейнерами */
+    flex: 1; 
     display: flex;
-    justify-content: left; /* Выравнивание по горизонтал */
+    justify-content: left;
     margin: 20px;
-    border: 2px solid black; /* Чёрные края */
-    border-radius: 4px; /* Округлённые углы */
-    padding: 20px; /* Внутренний отступ */
+    border: 2px solid black;
+    border-radius: 4px;
+    padding: 20px;
     flex-direction: column;
     overflow: auto;
   }
@@ -26,7 +26,7 @@
   
   .right-container {
     display: flex;
-    flex-direction: column; /* Элементы внутри контейнера будут располагаться по вертикали */
+    flex-direction: column;
     align-items: center;
   }
   
@@ -47,25 +47,25 @@
 
   .datetime {
     display: flex;
-    align-items: center; /* Выравнивание по центру */
+    align-items: center;
   }
   
   .StartDate {
-    margin: 10px; /* Отступ между кнопками */
+    margin: 10px;
   }
 
   .EndDate {
-    margin: 10px; /* Отступ между кнопками */
+    margin: 10px;
     
   }
   
   .raport-button {
-    margin-top: 20px; /* Отступ сверху для третьей кнопки */
+    margin-top: 20px;
   }
 
   .label {
-    text-align: center; /* Выравнивание текста по центру */
-    margin-bottom: 10px; /* Отступ снизу */
+    text-align: center;
+    margin-bottom: 10px;
   }
   .auth{
     display:flex;
