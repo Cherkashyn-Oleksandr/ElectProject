@@ -28,7 +28,9 @@ const Home = () => {
 
     const [checked, setChecked] = useState([])
 
-    const [boxchecked, setBoxchecked] = useState(false)
+    const [hourchecked, setHourchecked] = useState(false)
+
+    const [loendurchecked, setLoendurchecked] = useState(false)
 
     const [filters, setFilters] = useState({
         StartDate:null,
@@ -39,8 +41,12 @@ const Home = () => {
         Group:"",
         Description:"",
     })
-    const handleCheckbox = () => {
-        setBoxchecked(!boxchecked)
+    const handleHourCheckbox = () => {
+        setHourchecked(!hourchecked)
+    }
+
+    const handleLoendurCheckbox = () => {
+        setLoendurchecked(!loendurchecked)
     }
 
     const handleChange = e =>{
@@ -61,7 +67,6 @@ const Home = () => {
     const onCheck = (value) => {
         setChecked(value);
     };
-
     const onExpand = (value) => {
         setExpanded(value);
     };
@@ -69,9 +74,10 @@ const Home = () => {
     const handleSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.post("http://localhost:8800/api/data/all", {checked, filters, boxchecked})
+         const res = await axios.post("http://localhost:8800/api/data/all", {checked, filters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(filters))
+         sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
         navigate("/data")
     }
         catch(err){
@@ -152,13 +158,21 @@ const Array = tags.filter(item => {
                 <Datetime locale='et' className='EndDate' onChange={ChangeEndDate}/>
                 </div>
             </div>
-            <div className="checkbox-hourly">
+            <div className="checkbox">
+                <div className="checkbox-item">
                 <Checkbox
                 label="Päeva Raport"
-                value={boxchecked}
-                onChange={handleCheckbox}
+                value={hourchecked}
+                onChange={handleHourCheckbox}
                 />
-            
+                </div>
+                <div className="checkbox-item">
+            <Checkbox
+                label="Näita absoluutne väärtus"
+                value={loendurchecked}
+                onChange={handleLoendurCheckbox}
+                />
+                </div>
             </div>
             <div className="raport-button">
             <button onClick={handleSubmit} >Raport</button>

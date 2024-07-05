@@ -118,7 +118,6 @@ export function transformArray(originalArray) {
         const date = item.Kuupaev;
         const groupAreaKey = `${item.Area} ${item.Group}`;
         const groupDescriptionKey = `${item.Group}-${item.Description}`;
-        const descLoendurKey = `${item.Group} ${item.Description} Loendur`;
 
         // groupAreaKey is ok
         if (!dates[date][groupAreaKey]) {
@@ -162,7 +161,6 @@ export function transformArray(originalArray) {
 
         transformedArray.push(orderedDay);
     });
-    console.log(transformedArray)
     return transformedArray;
 }
 export function getHourlyArray(originalArray) {

@@ -36,6 +36,14 @@
     align-items: left;
   }
 
+  .checkbox{
+    display: flex;
+    flex-direction: row;
+  }
+  .checkbox-item{
+    margin-left: 10px;
+  }
+
   .data-filters {
     margin: 5px;
   }

@@ -16,14 +16,23 @@ const Data = () =>{
     const [dateTime, setDateTime] = useState('');
     let columns = [] //columns for table
     let chartArray = [] //Array for chart
+    let ClearArray = []
     var Dates = JSON.parse(sessionStorage.getItem('Dates')) //dates for chart option
     var AllData = JSON.parse(sessionStorage.getItem('Array')) //data for table
+    var LoendurChecked = JSON.parse(sessionStorage.getItem('LoendurСhecked'));
     if(AllData != null){
         columns = Object.keys(AllData[0]).map(key => ({
         field: key,
         header: key
     }));
-    chartArray = transformArray(AllData)
+    if(LoendurChecked == false && LoendurChecked != null){
+        console.log(LoendurChecked)
+        ClearArray = deleteLoendur(AllData)
+        chartArray = transformChartArray(ClearArray)
+    }else{
+        ClearArray = AllData
+    chartArray = transformChartArray(AllData)
+}
     exportColumns = columns.map((col) => ({ title: col.header, dataKey: col.field }));
 }
     // create csv
@@ -110,9 +119,8 @@ const Data = () =>{
       };
 
 //func for creating chart array
-function transformArray(originalArray) {
+function transformChartArray(originalArray) {
     // Collect headers
-    console.log(originalArray[0])
     const headers = Object.keys(originalArray[0]).filter(key => key.includes("-"));
     // Create new array
     const newArray = [["Kuupaev", ...headers]];
@@ -126,6 +134,21 @@ function transformArray(originalArray) {
     });
     return newArray;
 }
+function deleteLoendur(data) {
+    return data.map(item => {
+        const newItem = {};
+
+        for (const key in item) {
+            if (item[key]) {
+                newItem[key] = item[key].replace(/\s?\(\d+(\.\d+)?\)$/, '');
+            } else {
+                newItem[key] = item[key];
+            }
+        }
+
+        return newItem;
+    });
+}
     return(
     <div>
         <div>
@@ -138,7 +161,7 @@ function transformArray(originalArray) {
     </div>
         <div className="card">
         <Tooltip target=".export-buttons>button" position="bottom" />
-        <DataTable ref={dt} value={AllData} header={header} className="datatable-responsive" removableSort 
+        <DataTable ref={dt} value={ClearArray} header={header} className="datatable-responsive" removableSort 
         stripedRows showGridlines paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]} 
         tableStyle={{ minWidth: '50rem' }}>
                 {columns.map((col, i) => (
