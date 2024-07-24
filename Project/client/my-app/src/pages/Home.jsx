@@ -12,7 +12,7 @@ import "../Home.css"
 const Home = () => {
     const fetchData = async ()=>{
         try{
-            const res = await axios.get("http://localhost:8800/api/data");
+            const res = await axios.get("http://192.168.20.14:8800/api/data");
             setTags(res.data);
         }catch(err){
             console.log(err);
@@ -24,6 +24,12 @@ const Home = () => {
         fetchData();
     },[]);
     
+    const currentDate = new Date()
+
+    const previousDay = new Date(currentDate)
+
+    previousDay.setDate(previousDay.getDate() - 1)
+
     const [err,setError] = useState(null)
 
     const [checked, setChecked] = useState([])
@@ -33,8 +39,8 @@ const Home = () => {
     const [loendurchecked, setLoendurchecked] = useState(false)
 
     const [filters, setFilters] = useState({
-        StartDate:null,
-        EndDate:null,
+        StartDate:previousDay,
+        EndDate:currentDate,
     })
     const [objectFilters, setObjects] = useState({
         Area:"",
@@ -74,7 +80,7 @@ const Home = () => {
     const handleSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.post("http://localhost:8800/api/data/all", {checked, filters, hourchecked, loendurchecked})
+         const res = await axios.post("http://192.168.20.14:8800/api/data/all", {checked, filters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(filters))
          sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
@@ -152,10 +158,10 @@ const Array = tags.filter(item => {
         <div className="right-container">
             <div className="datetime">
                 <div className="label">Alates
-                <Datetime locale='et' className='StartDate' onChange={ChangeStartDate}/>
+                <Datetime value={filters.StartDate} locale='et' className='StartDate' onChange={ChangeStartDate}/>
                 </div>
                 <div className="label">Kuni
-                <Datetime locale='et' className='EndDate' onChange={ChangeEndDate}/>
+                <Datetime value={filters.EndDate} locale='et' className='EndDate' onChange={ChangeEndDate}/>
                 </div>
             </div>
             <div className="checkbox">

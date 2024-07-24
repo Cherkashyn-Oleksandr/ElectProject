@@ -120,11 +120,12 @@ const Data = () =>{
 
 //func for creating chart array
 function transformChartArray(originalArray) {
+    const filteredArray = originalArray.filter(item => item.Kuupaev !== "Summa");
     // Collect headers
     const headers = Object.keys(originalArray[0]).filter(key => key.includes("-"));
     // Create new array
     const newArray = [["Kuupaev", ...headers]];
-    originalArray.forEach(item => {
+    filteredArray.forEach(item => {
         const row = [item["Kuupaev"]];
         // Get data from array and convert to float
         headers.forEach(header => {
@@ -132,6 +133,7 @@ function transformChartArray(originalArray) {
         });
         newArray.push(row);
     });
+
     return newArray;
 }
 function deleteLoendur(data) {
@@ -162,7 +164,7 @@ function deleteLoendur(data) {
         <div className="card">
         <Tooltip target=".export-buttons>button" position="bottom" />
         <DataTable ref={dt} value={ClearArray} header={header} className="datatable-responsive" removableSort 
-        stripedRows showGridlines paginator rows={5} rowsPerPageOptions={[5, 10, 25, 50]} 
+        stripedRows showGridlines paginator rows={50} rowsPerPageOptions={[5, 10, 25, 50]} 
         tableStyle={{ minWidth: '50rem' }}>
                 {columns.map((col, i) => (
                     <Column key={col.field} field={col.field} header={col.header} sortable/>

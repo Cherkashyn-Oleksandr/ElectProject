@@ -98,71 +98,6 @@ export function getArray(originalArray) {
 
     return finalResult;
 }
-export function transformArray(originalArray) {
-    const transformedArray = [];
-    const dates = {};
-
-    // Create new object for date
-    originalArray.forEach(item => {
-        const date = item.Kuupaev;
-        if (!dates[date]) {
-            dates[date] = { Kuupaev: date };
-        }
-    });
-
-    // collect unique Area & Group
-    const uniqueGroupAreas = Array.from(new Set(originalArray.map(item => `${item.Area}/${item.Group}`)));
-
-    // Add object for each unique Area & Group
-    originalArray.forEach(item => {
-        const date = item.Kuupaev;
-        const groupAreaKey = `${item.Area} ${item.Group}`;
-        const groupDescriptionKey = `${item.Group}-${item.Description}`;
-
-        // groupAreaKey is ok
-        if (!dates[date][groupAreaKey]) {
-            dates[date][groupAreaKey] = '';
-        }
-        // round data
-        const differenceRound = item.Difference - Math.floor(item.Difference)
-        const loendurRound = item.Loendur - Math.floor(item.Loendur)
-
-        if (differenceRound < 0.5 && loendurRound < 0.5) {
-            dates[date][groupDescriptionKey] = `${Math.round(item.Difference)} (${Math.round(item.Loendur)})`;
-        } else if (differenceRound >= 0.5 && loendurRound < 0.5) {
-            dates[date][groupDescriptionKey] = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur)})`;
-        } else if (differenceRound >= 0.5 && loendurRound >= 0.5) {
-            dates[date][groupDescriptionKey] = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur * 10) / 10})`;
-        } else {
-            dates[date][groupDescriptionKey] = `${Math.round(item.Difference)} (${Math.round(item.Loendur * 10) / 10})`;
-        }
-    });
-
-    // create array
-    Object.keys(dates).forEach(dateKey => {
-        const day = dates[dateKey];
-        const orderedDay = { Kuupaev: day.Kuupaev };
-
-        uniqueGroupAreas.forEach(groupArea => {
-            const areaGroupKey = groupArea;
-
-            // areaGroupKey is ok
-            if (!day[areaGroupKey]) {
-                orderedDay[areaGroupKey] = '';
-            }
-
-            // add keys with loendur
-            Object.keys(day).forEach(key => {
-                if (key.startsWith(groupArea.split('/')[1])) {
-                    orderedDay[key] = day[key];
-                }
-            });
-        });
-
-        transformedArray.push(orderedDay);
-    });
-    return transformedArray;
-}
 export function getHourlyArray(originalArray) {
     const result = {};
 
@@ -222,6 +157,127 @@ export function getHourlyArray(originalArray) {
     });
 
     return finalResult;
+}
+export function transformArray(originalArray) {
+    const transformedArray = [];
+    const dates = {};
+
+    // Create new object for date
+    originalArray.forEach(item => {
+        const date = item.Kuupaev;
+        if (!dates[date]) {
+            dates[date] = { Kuupaev: date };
+        }
+    });
+
+    // collect unique Area & Group
+    const uniqueGroupAreas = Array.from(new Set(originalArray.map(item => `${item.Area}/${item.Group}`)));
+
+    // Initialize totals and counts for sum, max, min, and average calculations
+    const totals = {};
+    const counts = {};
+    const maxValues = {};
+    const minValues = {};
+
+    // Add object for each unique Area & Group
+    originalArray.forEach(item => {
+        const date = item.Kuupaev;
+        const groupAreaKey = `${item.Area}/${item.Group}`;
+        const groupDescriptionKey = `${item.Group}-${item.Description}`;
+
+        // groupAreaKey is ok
+        if (!dates[date][groupAreaKey]) {
+            dates[date][groupAreaKey] = '';
+        }
+        
+        const differenceRound = item.Difference - Math.floor(item.Difference);
+        const loendurRound = item.Loendur - Math.floor(item.Loendur);
+        
+        let formattedValue;
+        if (differenceRound < 0.5 && loendurRound < 0.5) {
+            formattedValue = `${Math.round(item.Difference)} (${Math.round(item.Loendur)})`;
+        } else if (differenceRound >= 0.5 && loendurRound < 0.5) {
+            formattedValue = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur)})`;
+        } else if (differenceRound >= 0.5 && loendurRound >= 0.5) {
+            formattedValue = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur * 10) / 10})`;
+        } else {
+            formattedValue = `${Math.round(item.Difference)} (${Math.round(item.Loendur * 10) / 10})`;
+        }
+        
+        dates[date][groupDescriptionKey] = formattedValue;
+
+        // Update totals and counts for calculations
+        const numericDifference = parseFloat(formattedValue.split(' ')[0]);
+
+        if (!totals[groupDescriptionKey]) {
+            totals[groupDescriptionKey] = { Difference: 0 };
+            counts[groupDescriptionKey] = 0;
+            maxValues[groupDescriptionKey] = { Difference: -Infinity };
+            minValues[groupDescriptionKey] = { Difference: Infinity };
+        }
+
+        totals[groupDescriptionKey].Difference += numericDifference;
+        counts[groupDescriptionKey]++;
+        maxValues[groupDescriptionKey].Difference = Math.max(maxValues[groupDescriptionKey].Difference, numericDifference);
+        minValues[groupDescriptionKey].Difference = Math.min(minValues[groupDescriptionKey].Difference, numericDifference);
+    });
+
+    // Create array
+    Object.keys(dates).forEach(dateKey => {
+        const day = dates[dateKey];
+        const orderedDay = { Kuupaev: day.Kuupaev };
+
+        uniqueGroupAreas.forEach(groupArea => {
+            const areaGroupKey = groupArea;
+
+            // areaGroupKey is ok
+            if (!day[areaGroupKey]) {
+                orderedDay[areaGroupKey] = '';
+            }
+
+            // Add keys with loendur
+            Object.keys(day).forEach(key => {
+                if (key.startsWith(groupArea.split('/')[1])) {
+                    orderedDay[key] = day[key];
+                }
+            });
+        });
+
+        transformedArray.push(orderedDay);
+    });
+
+    // Add summary rows (Summa, Maksimum, Keskmine, Minimum)
+    const summaryRows = ['Summa', 'Maksimum', 'Keskmine', 'Minimum'].map(summaryType => {
+        const summaryRow = { Kuupaev: summaryType };
+        uniqueGroupAreas.forEach(groupArea => {
+            summaryRow[groupArea] = '';
+            Object.keys(totals).forEach(key => {
+                const SummaRound = totals[key].Difference - Math.floor(totals[key].Difference);
+                let summaryValue;
+                if (summaryType === 'Summa') {
+                    if(SummaRound >= 0.5){
+                        summaryValue = `${Math.round(totals[key].Difference * 10) / 10}`;
+                    }else{
+                    summaryValue = `${Math.round(totals[key].Difference)}`;
+                }
+                } else if (summaryType === 'Maksimum') {
+                    summaryValue = `${maxValues[key].Difference}`;
+                } else if (summaryType === 'Keskmine') {
+                    summaryValue = `${Math.round((totals[key].Difference / counts[key]) * 10) / 10}`;
+                } else if (summaryType === 'Minimum') {
+                    summaryValue = `${minValues[key].Difference}`;
+                }
+                if (key.startsWith(groupArea.split('/')[1])) {
+                    summaryRow[key] = summaryValue;
+                }
+            });
+        });
+        return summaryRow;
+    });
+
+    transformedArray.push(...summaryRows);
+
+    return transformedArray;
 }
 export function splitArray(strings) {
     const result = [];

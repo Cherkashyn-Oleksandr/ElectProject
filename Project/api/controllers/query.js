@@ -221,7 +221,6 @@ export const getFilterData = async (req,res) =>{
 
 }
     newarray = transformArray(finalarray)
-
     res.status(200).json(newarray)
 }
 // elering electricity price
