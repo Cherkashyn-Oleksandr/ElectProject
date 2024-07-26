@@ -1,31 +1,51 @@
 import React, {useState} from "react"
 import axios from "axios"
+import "../Home.css"
+
 const Table = () =>{
     const [err,setError] = useState(null)
-    const [Dates, setDate] = useState([])
-    
-    const handleSubmit = async e =>{
+    const [Data, setData] = useState([])
+    const [identifier, setID] = useState([])
+    const handleTomorrowSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.get("http://localhost:8800/api/data/table")
-         let arr = [...Object.values(res.data.data.ee)];
-        setDate(arr)
+         const res = await axios.get(`http://192.168.20.14:8800/api/data/table/tomorrow?Id=${identifier.Id}`)
+        setData(res.data)
     }
         catch(err){
             setError(err.response.data)
     }
     }
+    const handleTodaySubmit = async e =>{
+        e.preventDefault()
+        try{
+         const res = await axios.get(`http://192.168.20.14:8800/api/data/table/today?Id=${identifier.Id}`)
+        setData(res.data)
+    }
+        catch(err){
+            setError(err.response.data)
+    }
+    }
+    const handleChange = e =>{
+        setID(prev=>({...prev, [e.target.name]: e.target.value}))
+    }
     return (
-        <div>
-            <div>
-            <button onClick={handleSubmit}>Get Price</button>
-            {err &&<p>{err}</p>}
-        </div>
-        {Dates.map((data)=>(
-                <div>
-                    {data.price}
+        <div className="main-container">
+            <div className="right-container">
+                <label>identifier</label>
+            <div className="object-filter">
+            <div className="data-filters">
+                <input required type="number"  placeholder='ID' name='Id' onChange={handleChange} ></input>
                 </div>
-                ))}
+                </div>
+                <div className="filter-buttons">
+            <button onClick={handleTodaySubmit}>Get Today</button>
+            <button style={{marginLeft: '10px'}} onClick={handleTomorrowSubmit}>Get Tomorrow</button>
+            </div>
+            <label></label>
+            {err &&<p>{err}</p>}
+            <label>{Data}</label>
+        </div>
         </div>
     );
 }

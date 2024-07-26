@@ -224,11 +224,47 @@ export const getFilterData = async (req,res) =>{
     res.status(200).json(newarray)
 }
 // elering electricity price
-export const getData = async (req,res) =>{
-    const date = new Date()
-    const endDate = new Date
-    endDate.setHours(date.getHours() - 1);
-    fetch(`https://dashboard.elering.ee/api/nps/price?start=${endDate.toISOString()}&end=${date.toISOString()}`)
+export const getTomorrowData = async (req,res) =>{
+  const {Id} = req.query
+  if(Id!='1111'){
+    return res.status(400).json("WrongId");
+  }
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const end = new Date(tomorrow);
+    end.setHours(23, 59, 59, 999);
+    const startISO = tomorrow.toISOString();
+    const endISO = end.toISOString();
+    fetch(`https://dashboard.elering.ee/api/nps/price?start=${startISO}end=${endISO}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+      }
+  })
+  .then(data => {
+    let prices = data.map(item => item.price);
+    let priceString = prices.join(", ");
+    res.status(200).json(priceString)
+  })
+  .catch(error => {
+    return res.status(400).json(`There was a problem ${error}`);
+  });
+}
+export const getTodayData = async (req,res) =>{
+  const {Id} = req.query
+  if(Id!='1111'){
+    return res.status(400).json("WrongId");
+  }
+  const today = new Date()
+  const startDay = new Date(today)
+  const endDay = new Date(today)
+  startDay.setHours(0, 0, 0, 0);
+  endDay.setHours(23, 59, 59, 999);
+  console.log(startDay.toISOString())
+  console.log(endDay)
+  fetch(`https://dashboard.elering.ee/api/nps/price?start=${startDay.toISOString()}&end=${endDay.toISOString()}`)
   .then(response => {
     if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -236,7 +272,9 @@ export const getData = async (req,res) =>{
     return response.json();
   })
   .then(data => {
-    res.status(200).json(data)
+    let prices = data.data.ee.map(item => item.price);
+    let priceString = prices.join(", ");
+    res.status(200).json(priceString)
   })
   .catch(error => {
     console.error('There was a problem with the fetch operation:', error);

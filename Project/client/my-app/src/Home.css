@@ -100,14 +100,6 @@
             border: none;
             border-bottom: 1px solid gray;
         }
-        button{
-            padding: 10px;
-            border: none;
-            background-color: teal;
-            cursor: pointer;
-            color: white;
-
-        }
 
         p{
             font-size: 12px;
