@@ -1,5 +1,5 @@
 import {db, bucket} from "../db.js";
-import { convertArray, getArray, transformArray, getHourlyArray, splitArray } from "./data.js";
+import { convertArray, getArray, transformArray, getHourlyArray, splitArray, checkId } from "./data.js";
 // get data for treeview table
 export const getAllData = async (req,res)=>{
   let newarray = [];
@@ -226,7 +226,7 @@ export const getFilterData = async (req,res) =>{
 // elering electricity price
 export const getTomorrowData = async (req,res) =>{
   const {Id} = req.query
-  if(Id!='1111'){
+  if(checkId(Id) == false){
     return res.status(400).json("WrongId");
   }
     const today = new Date()
@@ -254,7 +254,7 @@ export const getTomorrowData = async (req,res) =>{
 }
 export const getTodayData = async (req,res) =>{
   const {Id} = req.query
-  if(Id!='1111'){
+  if(checkId(Id) == false){
     return res.status(400).json("WrongId");
   }
   const today = new Date()
@@ -262,8 +262,6 @@ export const getTodayData = async (req,res) =>{
   const endDay = new Date(today)
   startDay.setHours(0, 0, 0, 0);
   endDay.setHours(23, 59, 59, 999);
-  console.log(startDay.toISOString())
-  console.log(endDay)
   fetch(`https://dashboard.elering.ee/api/nps/price?start=${startDay.toISOString()}&end=${endDay.toISOString()}`)
   .then(response => {
     if (!response.ok) {

@@ -1,5 +1,8 @@
 import cron from 'node-cron'
 import nodemailer from 'nodemailer'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url';
 
 export function convertArray(originalArray) {
     let result = []
@@ -289,6 +292,25 @@ export function splitArray(strings) {
 
     return result;
 }
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const jsonIdPath = path.join(__dirname, '..', 'identifier.json')
+
+const readIdentifiers = () => {
+    try {
+      const identifiers = fs.readFileSync(jsonIdPath, 'utf8');
+      return JSON.parse(identifiers);
+    } catch (error) {
+      console.error('Error reading or parsing passwords file:', error);
+      return [];
+    }
+  };
+
+  export function checkId(Id){
+    const identifiers = readIdentifiers()
+    return identifiers.includes(Id)
+  }
 
 /*let mailOptions = {
     from: 'oleks.cherkashyn@gmail.com',
