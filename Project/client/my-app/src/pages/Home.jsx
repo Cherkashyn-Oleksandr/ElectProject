@@ -12,7 +12,7 @@ import "../Home.css"
 const Home = () => {
     const fetchData = async ()=>{
         try{
-            const res = await axios.get("http://192.168.20.14:8800/api/data");
+            const res = await axios.get("http://172.17.0.128:8800/api/data");
             setTags(res.data);
         }catch(err){
             console.log(err);
@@ -60,10 +60,10 @@ const Home = () => {
     }
 
     const ChangeStartDate = e =>{
-        setFilters(prev=>({...prev, StartDate: e.toISOString()}))
+        setFilters(prev=>({...prev, StartDate: e}))
     }
     const ChangeEndDate = e =>{
-        setFilters(prev=>({...prev, EndDate: e.toISOString()}))
+        setFilters(prev=>({...prev, EndDate: e}))
     }
     
     const navigate = useNavigate()
@@ -79,10 +79,15 @@ const Home = () => {
      // get filters data
     const handleSubmit = async e =>{
         e.preventDefault()
+        const formattedFilters = {
+            ...filters,
+            StartDate: filters.StartDate.toISOString(),
+            EndDate: filters.EndDate.toISOString(),
+        };
         try{
-         const res = await axios.post("http://192.168.20.14:8800/api/data/all", {checked, filters, hourchecked, loendurchecked})
+         const res = await axios.post("http://172.17.0.128:8800/api/data/all", {checked, formattedFilters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
-         sessionStorage.setItem('Dates',JSON.stringify(filters))
+         sessionStorage.setItem('Dates',JSON.stringify(formattedFilters))
          sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
         navigate("/data")
     }

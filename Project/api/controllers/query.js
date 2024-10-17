@@ -50,12 +50,15 @@ export const getFilterData = async (req,res) =>{
   if(req.body.checked[0] == undefined){
     return res.status(404).json("Select objects")
   }
+  if(req.body.formattedFilters.StartDate >= req.body.formattedFilters.EndDate){
+    return res.status(404).json("Wrong time period")
+  }
     const tagArray = splitArray(req.body.checked)
     let array = []
     //check if client insert date filters
 
     
-    if(req.body.filters.StartDate==null && req.body.filters.EndDate == null){
+    if(req.body.formattedFilters.StartDate==null && req.body.formattedFilters.EndDate == null){
       for (let i = 0; i < tagArray.length; i++) {
     const fluxQuery = `from(bucket: "${bucket}")
     |> range(start: -1y)  
@@ -96,10 +99,10 @@ export const getFilterData = async (req,res) =>{
     else
     {
         // if client inserted startdate
-        if(req.body.filters.StartDate!=null && req.body.filters.EndDate==null){
+        if(req.body.formattedFilters.StartDate!=null && req.body.formattedFilters.EndDate==null){
           for (let i = 0; i < tagArray.length; i++) {
                 const fluxQuery = `from(bucket: "${bucket}")
-                |> range(start: ${req.body.filters.StartDate})
+                |> range(start: ${req.body.formattedFilters.StartDate})
                 |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                 |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                 try {
@@ -135,10 +138,10 @@ export const getFilterData = async (req,res) =>{
         }
         else{
            // if client inserted enddate
-            if(req.body.filters.StartDate==null && req.body.filters.EndDate!=null){
+            if(req.body.formattedFilters.StartDate==null && req.body.formattedFilters.EndDate!=null){
               for (let i = 0; i < tagArray.length; i++) {
                     const fluxQuery = `from(bucket: "${bucket}")
-                    |> range(start: 0, stop: ${req.body.filters.EndDate})
+                    |> range(start: 0, stop: ${req.body.formattedFilters.EndDate})
                     |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                     try {
@@ -176,7 +179,7 @@ export const getFilterData = async (req,res) =>{
                 // if client inserted both dates
                 for (let i = 0; i < tagArray.length; i++) {
                     const fluxQuery = `from(bucket: "${bucket}")
-                    |> range(start: ${req.body.filters.StartDate}, stop: ${req.body.filters.EndDate})
+                    |> range(start: ${req.body.formattedFilters.StartDate}, stop: ${req.body.formattedFilters.EndDate})
                     |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                     try {
@@ -192,7 +195,7 @@ export const getFilterData = async (req,res) =>{
                         error: (error) => {
                           console.error('\nError', error);
                           res.status(500).json({ error: error.message });
-                          reject();
+                          
                         },
                         complete: () => {
                           //console.log('\nSuccess');
@@ -204,6 +207,7 @@ export const getFilterData = async (req,res) =>{
                     })
                   
                     } catch (error) {
+                      
                       console.error('Error querying data:', error);
                       res.status(500).json({ error: error.message });
                     }   
@@ -211,6 +215,10 @@ export const getFilterData = async (req,res) =>{
                     
             }
         }
+    }
+    let checkarray = array.some((element) => true)
+    if(checkarray == false){
+      res.status(404).json("No data")
     }
     if(req.body.hourchecked == true){
    finalarray = getHourlyArray(array)
@@ -235,16 +243,15 @@ export const getTomorrowData = async (req,res) =>{
     tomorrow.setHours(0, 0, 0, 0);
     const end = new Date(tomorrow);
     end.setHours(23, 59, 59, 999);
-    const startISO = tomorrow.toISOString();
-    const endISO = end.toISOString();
-    fetch(`https://dashboard.elering.ee/api/nps/price?start=${startISO}end=${endISO}`)
+    fetch(`https://dashboard.elering.ee/api/nps/price?start=${tomorrow.toISOString()}&end=${end.toISOString()}`)
   .then(response => {
     if (!response.ok) {
       throw new Error('Network response was not ok');
       }
+      return response.json();
   })
   .then(data => {
-    let prices = data.map(item => item.price);
+    let prices = data.data.ee.map(item => item.price);
     let priceString = prices.join(", ");
     res.status(200).json(priceString)
   })

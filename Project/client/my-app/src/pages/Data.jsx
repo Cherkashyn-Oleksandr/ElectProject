@@ -116,6 +116,13 @@ const Data = () =>{
           title: "Objekt",
           //subtitle: "15.4.2024 - 17.4.2024",
         },
+        explorer: {
+            actions:['dragToZoom','rightClickToReset'],
+            axis:'both',
+            keepInBounds: true,
+            maxZoomIn: 4.0,
+        },
+        bar: {groupWidth: '100px'},
       };
 
 //func for creating chart array
@@ -171,14 +178,16 @@ function deleteLoendur(data) {
                 ))}
             </DataTable>
         </div>
-        <div>
+        <div >
+            <div >
         <Chart
-      chartType="Bar"
+      chartType="ColumnChart"
       width="100%"
       height="400px"
       data={chartArray}
       options={options}
     />
+    </div>
         </div>
        
         </div>
