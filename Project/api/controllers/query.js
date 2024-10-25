@@ -218,7 +218,7 @@ export const getFilterData = async (req,res) =>{
     }
     let checkarray = array.some((element) => true)
     if(checkarray == false){
-      res.status(404).json("No data")
+      return res.status(404).json("No data")
     }
     if(req.body.hourchecked == true){
    finalarray = getHourlyArray(array)

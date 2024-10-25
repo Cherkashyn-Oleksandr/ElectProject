@@ -10,6 +10,7 @@ import {useNavigate} from "react-router-dom"
 
 
 const Data = () =>{
+    const [chartType, setChartType] = useState("ColumnChart");
     let exportColumns = []
     const navigate = useNavigate()
     // create dates array
@@ -118,11 +119,12 @@ const Data = () =>{
         },
         explorer: {
             actions:['dragToZoom','rightClickToReset'],
-            axis:'both',
+            axis:'verical',
             keepInBounds: true,
-            maxZoomIn: 4.0,
+            maxZoomIn: 500.0,
         },
-        bar: {groupWidth: '100px'},
+        bar: {groupWidth: '100%'},
+        
       };
 
 //func for creating chart array
@@ -168,25 +170,30 @@ function deleteLoendur(data) {
       </div>
       <h2 style={{ textAlign: 'center' }}>Raport {dateTime}</h2>
     </div>
-        <div className="card">
+        <div className="card" >
         <Tooltip target=".export-buttons>button" position="bottom" />
-        <DataTable ref={dt} value={ClearArray} header={header} className="datatable-responsive" removableSort 
+        <DataTable ref={dt}  size="small" value={ClearArray} header={header} className="datatable-responsive" 
+        removableSort 
         stripedRows showGridlines paginator rows={50} rowsPerPageOptions={[5, 10, 25, 50]} 
         tableStyle={{ minWidth: '50rem' }}>
                 {columns.map((col, i) => (
-                    <Column key={col.field} field={col.field} header={col.header} sortable/>
+                    <Column key={col.field} field={col.field} header={col.header} sortable headerStyle={{fontSize : '10px'}}/>
                 ))}
             </DataTable>
         </div>
         <div >
             <div >
         <Chart
-      chartType="ColumnChart"
+      chartType={chartType}
       width="100%"
-      height="400px"
+      height="800px"
       data={chartArray}
       options={options}
     />
+    <div>
+        <Button label= "Column Chart" onClick={() => setChartType("ColumnChart")}></Button>
+        <Button label= "Line Chart" onClick={() => setChartType("LineChart")} style={{marginLeft: '10px'}}></Button>
+    </div>
     </div>
         </div>
        

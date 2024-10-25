@@ -12,7 +12,7 @@ import "../Home.css"
 const Home = () => {
     const fetchData = async ()=>{
         try{
-            const res = await axios.get("http://172.17.0.128:8800/api/data");
+            const res = await axios.get("http://172.17.0.3:8800/api/data");
             setTags(res.data);
         }catch(err){
             console.log(err);
@@ -85,7 +85,7 @@ const Home = () => {
             EndDate: filters.EndDate.toISOString(),
         };
         try{
-         const res = await axios.post("http://172.17.0.128:8800/api/data/all", {checked, formattedFilters, hourchecked, loendurchecked})
+         const res = await axios.post("http://172.17.0.3:8800/api/data/all", {checked, formattedFilters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(formattedFilters))
          sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
