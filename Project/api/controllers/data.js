@@ -312,6 +312,60 @@ const readIdentifiers = () => {
     return identifiers.includes(Id)
   }
 
+  export function AnalogData(data) {
+   
+    const dailyData = {};
+    
+    data.forEach(item => {
+      const date = new Date(item._time).toLocaleDateString('ru-RU');
+      const keyDescription = `${item.Area}/${item.Group}`;
+      const keyMetric = `${item.Group}-${item.Description}`;
+      
+      
+      if (!dailyData[date]) {
+        dailyData[date] = { "Kuupaev": date };
+      }
+      
+      
+      if (!dailyData[date][keyDescription]) {
+        dailyData[date][keyDescription] = "";
+      }
+      
+      dailyData[date][keyMetric] = item.Realvalue;
+    });
+    
+    
+    const resultArray = Object.values(dailyData).sort((a, b) => new Date(a.Kuupaev) - new Date(b.Kuupaev));
+    
+    
+    const keys = Object.keys(resultArray[0]).filter(key => key !== "Kuupaev");
+  
+    const calculateStatistics = (key) => {
+      const values = resultArray.map(item => item[key]).filter(v => v !== undefined && v !== null);
+      return {
+        Maksimum: Math.max(...values),
+        Keskmine: values.length ? Math.round(values.reduce((acc, v) => acc + v, 0) / values.length) : null,
+        Minimum: Math.min(...values)
+      };
+    };
+  
+    
+    const maxEntry = { "Kuupaev": "Maksimum" };
+    const avgEntry = { "Kuupaev": "Keskmine" };
+    const minEntry = { "Kuupaev": "Minimum" };
+  
+    keys.forEach(key => {
+      const stats = calculateStatistics(key);
+      maxEntry[key] = stats.Maksimum;
+      avgEntry[key] = stats.Keskmine;
+      minEntry[key] = stats.Minimum;
+    });
+  
+    resultArray.push(maxEntry, avgEntry, minEntry);
+  
+    return resultArray;
+  }
+
 /*let mailOptions = {
     from: 'oleks.cherkashyn@gmail.com',
     to: 'samsungmarvel2@gmail.com',
