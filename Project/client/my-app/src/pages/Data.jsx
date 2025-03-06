@@ -20,6 +20,7 @@ const Data = () =>{
     let ClearArray = []
     var Dates = JSON.parse(sessionStorage.getItem('Dates')) //dates for chart option
     var AllData = JSON.parse(sessionStorage.getItem('Array')) //data for table
+    console.log(AllData)
     var LoendurChecked = JSON.parse(sessionStorage.getItem('LoendurСhecked'));
     if(AllData != null){
         columns = Object.keys(AllData[0]).map(key => ({

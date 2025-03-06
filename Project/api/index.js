@@ -1,6 +1,15 @@
 import express from "express"
+import fs  from "fs"
+import https from "https"
 import routes from "./routes/data.js"
 const app = express()
+const options = {
+  rejectUnauthorized: false,
+  requestCert: false,//add when working with https sites
+  agent: false,//add when working with https sites
+  key: fs.readFileSync('C:/Program Files (x86)/Aruand Programm/Project/api/certs/private.key'),
+  cert: fs.readFileSync('C:/Program Files (x86)/Aruand Programm/Project/api/certs/certificate.crt'), 
+};
 app.use(express.json())
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
@@ -9,6 +18,6 @@ app.use(function(req, res, next) {
   });
 
 app.use("/api/data", routes)
-app.listen(8800,()=>{
-    console.log("Connected")
-})
+https.createServer(options, app).listen(8800, () => {
+  console.log("Connected");
+});

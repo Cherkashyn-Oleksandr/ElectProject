@@ -9,10 +9,11 @@ import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import "../Home.css"
 
 
+
 const Home = () => {
     const fetchData = async ()=>{
         try{
-            const res = await axios.get(`http://172.17.0.128:8800/api/data?measurement=${measurement}`);
+            const res = await axios.get("https://172.17.0.5:8800/api/data");
             setTags(res.data);
         }catch(err){
             console.log(err);
@@ -24,8 +25,6 @@ const Home = () => {
         fetchData();
     },[]);
     
-    const measurement = "Data"
-
     const currentDate = new Date()
 
     const previousDay = new Date(currentDate)
@@ -60,14 +59,6 @@ const Home = () => {
     const handleChange = e =>{
         setObjects(prev=>({...prev, [e.target.name]: e.target.value}))
     }
-    const handleRedirect = e => {
-        try{
-            navigate("/analog")
-        }
-        catch(err){
-            setError(err.response.data)
-        }
-    }
 
     const ChangeStartDate = e =>{
         setFilters(prev=>({...prev, StartDate: e}))
@@ -95,7 +86,7 @@ const Home = () => {
             EndDate: filters.EndDate.toISOString(),
         };
         try{
-         const res = await axios.post(`http://172.17.0.128:8800/api/data/all?measurement=${measurement}`, {checked, formattedFilters, hourchecked, loendurchecked})
+         const res = await axios.post("https://172.17.0.5:8800/api/data/all", {checked, formattedFilters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(formattedFilters))
          sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
@@ -147,16 +138,16 @@ const Array = tags.filter(item => {
     return (
     <div className="main-container">
             <div className="left-container">
-                <div className="label">Count Objektid</div>
+                <div className="label">Objektid</div>
                 <div className="object-filter">
-                <div className="data-filters">Area
-                <input required type="text" placeholder='Area' name='Area' onChange={handleChange}></input>
+                <div className="data-filters">Ala
+                <input required type="text" placeholder='Ala' name='Area' onChange={handleChange}></input>
                 </div>
-                <div className="data-filters">Group
-                <input required type="text" placeholder='Group' name='Group' onChange={handleChange}></input>
+                <div className="data-filters">Grupp
+                <input required type="text" placeholder='Grupp' name='Group' onChange={handleChange}></input>
                 </div>
-                <div className="data-filters">Description
-                <input required type="text" placeholder='Description' name='Description' onChange={handleChange}></input>
+                <div className="data-filters">Kirjeldus
+                <input required type="text" placeholder='Kirjeldus' name='Description' onChange={handleChange}></input>
                 </div>
                 </div>
                 <div className="filter-buttons"><button onClick={handleArray}>Otsi</button>
@@ -182,7 +173,7 @@ const Array = tags.filter(item => {
             <div className="checkbox">
                 <div className="checkbox-item">
                 <Checkbox
-                label="Päeva Raport"
+                label="Andmed tunni kaupa"
                 value={hourchecked}
                 onChange={handleHourCheckbox}
                 />
@@ -199,9 +190,6 @@ const Array = tags.filter(item => {
             <button onClick={handleSubmit} >Raport</button>
                 
                 
-        </div>
-        <div className="navigate-button" style={{position:'absolute', bottom: '100px'}}>
-        <button onClick={handleRedirect} >Analog Data</button>
         </div>
         {err &&<p>{err}</p>} 
         </div>               

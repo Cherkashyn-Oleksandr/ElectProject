@@ -63,10 +63,10 @@ export function getArray(originalArray) {
 
         // adding difference if Loendur grow
         if (existingItem) {
-            const difference = item.Realvalue - existingItem.Loendur;
+            const difference = item.Realvalue - existingItem.StartLoendur;
             if (difference > 0) {
                 existingItem.Loendur = item.Realvalue;
-                existingItem.Difference += difference; 
+                existingItem.Difference = difference; 
             }
         } else {
             // create new object
@@ -90,9 +90,9 @@ export function getArray(originalArray) {
             const currentDate = result[key][dates[i]];
             if (i > 0) {
                 const previousDate = result[key][dates[i - 1]];
-                const difference = currentDate.StartLoendur - previousDate.Loendur;
+                const difference = currentDate.Loendur - previousDate.Loendur;
                 if (difference > 0) {
-                    currentDate.Difference += difference;
+                    currentDate.Difference = difference;
                 }
             }
             finalResult.push(currentDate);
@@ -122,10 +122,10 @@ export function getHourlyArray(originalArray) {
 
         // Adding difference if Loendur grows
         if (existingItem) {
-            const difference = item.Realvalue - existingItem.Loendur;
+            const difference = item.Realvalue - existingItem.StartLoendur;
             if (difference > 0) {
                 existingItem.Loendur = item.Realvalue;
-                existingItem.Difference += difference;
+                existingItem.Difference = difference;
             }
         } else {
             // Create new object
@@ -145,20 +145,24 @@ export function getHourlyArray(originalArray) {
     const finalResult = [];
     Object.keys(result).forEach(key => {
         const hours = Object.keys(result[key]).sort((a, b) => new Date(a.split(" ")[1].split(".").reverse().join("-") + ' ' + a.split(" ")[0]) - new Date(b.split(" ")[1].split(".").reverse().join("-") + ' ' + b.split(" ")[0]));
-        console.log(result[key])
+        
         for (let i = 0; i < hours.length; i++) {
             const currentHour = result[key][hours[i]];
+            console.log(currentHour)
             if (i > 0) {
                 const previousHour = result[key][hours[i - 1]];
-                const difference = currentHour.StartLoendur - previousHour.Loendur;
+                console.log(previousHour)
+                const difference = currentHour.Loendur - previousHour.Loendur;
+                console.log(difference)
                 if (difference > 0) {
-                    currentHour.Difference += difference;
+                    currentHour.Difference = difference;
+                    console.log(currentHour.Difference)
                 }
             }
             finalResult.push(currentHour);
         }
     });
-
+    console.log(finalResult)
     return finalResult;
 }
 export function transformArray(originalArray) {
@@ -193,19 +197,10 @@ export function transformArray(originalArray) {
             dates[date][groupAreaKey] = '';
         }
         
-        const differenceRound = item.Difference - Math.floor(item.Difference);
-        const loendurRound = item.Loendur - Math.floor(item.Loendur);
         
         let formattedValue;
-        if (differenceRound < 0.5 && loendurRound < 0.5) {
-            formattedValue = `${Math.round(item.Difference)} (${Math.round(item.Loendur)})`;
-        } else if (differenceRound >= 0.5 && loendurRound < 0.5) {
-            formattedValue = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur)})`;
-        } else if (differenceRound >= 0.5 && loendurRound >= 0.5) {
-            formattedValue = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur * 10) / 10})`;
-        } else {
-            formattedValue = `${Math.round(item.Difference)} (${Math.round(item.Loendur * 10) / 10})`;
-        }
+
+            formattedValue = `${item.Difference.toFixed(1).replace(/\.0+$/,'')} (${item.Loendur.toFixed(1).replace(/\.0+$/,'')})`;
         
         dates[date][groupDescriptionKey] = formattedValue;
 
@@ -282,7 +277,7 @@ export function transformArray(originalArray) {
 
     return transformedArray;
 }
-export function splitArray(strings) { //split filter to get data from InfluxDB
+export function splitArray(strings) {
     const result = [];
 
     strings.forEach(string => {
@@ -297,7 +292,7 @@ const __dirname = path.dirname(__filename);
 
 const jsonIdPath = path.join(__dirname, '..', 'identifier.json')
 
-const readIdentifiers = () => {   //get identifiers for check ID
+const readIdentifiers = () => {
     try {
       const identifiers = fs.readFileSync(jsonIdPath, 'utf8');
       return JSON.parse(identifiers);
@@ -307,72 +302,10 @@ const readIdentifiers = () => {   //get identifiers for check ID
     }
   };
 
-  export function checkId(Id){ // check ID for accepting elering price request
+  export function checkId(Id){
     const identifiers = readIdentifiers()
     return identifiers.includes(Id)
   }
-
-  export function AnalogData(data) {
-    const dailyData = {};
-
-    data.forEach(item => {
-      const date = new Date(item._time).toLocaleDateString('ru-RU', {
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit', 
-        minute: '2-digit', 
-        second: '2-digit'
-      });
-  
-      const keyDescription = `${item.Area}/${item.Group}`;
-      const keyMetric = `${item.Group}-${item.Description}`;
-  
-      if (!dailyData[date]) {
-        dailyData[date] = { "Kuupaev": date };
-      }
-  
-      if (!dailyData[date][keyDescription]) {
-        dailyData[date][keyDescription] = "";
-      }
-     
-      dailyData[date][keyMetric] = item.Realvalue.toFixed(3);
-    });
-    
-    const resultArray = Object.values(dailyData).sort((a, b) => new Date(a.Kuupaev) - new Date(b.Kuupaev));
-    const keys = Object.keys(resultArray[0]).filter(key => key !== "Kuupaev");
-  
-    const calculateStatistics = (key) => {
-      const values = resultArray
-        .map(item => item[key])
-        .filter(v => v !== undefined && v !== null); 
-      if (values.length > 0) {
-        return {
-          Maksimum: Math.max(...values),
-          Keskmine: (values.reduce((acc, v) => acc + parseFloat(v), 0) / values.length).toFixed(3), 
-          Minimum: Math.min(...values)
-        };
-      } else {
-        return { Maksimum: "", Keskmine: "", Minimum: "" }; 
-      }
-    };
-  
-    const maxEntry = { "Kuupaev": "Maksimum" };
-    const avgEntry = { "Kuupaev": "Keskmine" };
-    const minEntry = { "Kuupaev": "Minimum" };
-  
-    keys.forEach(key => {
-      const stats = calculateStatistics(key);
-      maxEntry[key] = stats.Maksimum !== 0 ? stats.Maksimum.toFixed(3) : "";
-      avgEntry[key] = stats.Keskmine !== "NaN" ? stats.Keskmine : "";
-      minEntry[key] = stats.Minimum !== 0 ? stats.Minimum.toFixed(3) : "";
-    });
-  
-    resultArray.push(maxEntry, avgEntry, minEntry);
-  
-    return resultArray;
-  }
-  
 
 /*let mailOptions = {
     from: 'oleks.cherkashyn@gmail.com',
