@@ -12,7 +12,7 @@ import "../Home.css"
 const Home = () => {
     const fetchData = async ()=>{
         try{
-            const res = await axios.get(`http://172.17.0.3:8800/api/data?measurement=${measurement}`);
+            const res = await axios.get(`http://172.17.0.128:8800/api/data?measurement=${measurement}`);
             setTags(res.data);
         }catch(err){
             console.log(err);
@@ -51,6 +51,15 @@ const Home = () => {
     const handleChange = e =>{
         setObjects(prev=>({...prev, [e.target.name]: e.target.value}))
     }
+    
+    const handleRedirect = e =>{
+        try{
+            navigate("/")
+        }
+        catch(err){
+            setError(err.response.data)
+        }
+    }
 
     const ChangeStartDate = e =>{
         setFilters(prev=>({...prev, StartDate: e}))
@@ -78,7 +87,7 @@ const Home = () => {
             EndDate: filters.EndDate.toISOString(),
         };
         try{
-         const res = await axios.post(`http://172.17.0.3:8800/api/data/all?measurement=${measurement}`, {checked, formattedFilters})
+         const res = await axios.post(`http://172.17.0.128:8800/api/data/all?measurement=${measurement}`, {checked, formattedFilters})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(formattedFilters))
         navigate("/analogdata")
@@ -129,7 +138,7 @@ const Array = tags.filter(item => {
     return (
     <div className="main-container">
             <div className="left-container">
-                <div className="label">Objektid</div>
+                <div className="label">Analog Objektid</div>
                 <div className="object-filter">
                 <div className="data-filters">Area
                 <input required type="text" placeholder='Area' name='Area' onChange={handleChange}></input>
@@ -167,8 +176,8 @@ const Array = tags.filter(item => {
                 
                 
         </div>
-        <div className="navigate-button">
-        <button onClick={navigate("/analog")} >Count Data</button>
+        <div className="navigate-button" style={{position:'absolute', bottom: '100px'}}>
+        <button onClick={handleRedirect} >Count Data</button>
         </div>
         {err &&<p>{err}</p>} 
         </div>               

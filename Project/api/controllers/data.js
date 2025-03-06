@@ -282,7 +282,7 @@ export function transformArray(originalArray) {
 
     return transformedArray;
 }
-export function splitArray(strings) {
+export function splitArray(strings) { //split filter to get data from InfluxDB
     const result = [];
 
     strings.forEach(string => {
@@ -297,7 +297,7 @@ const __dirname = path.dirname(__filename);
 
 const jsonIdPath = path.join(__dirname, '..', 'identifier.json')
 
-const readIdentifiers = () => {
+const readIdentifiers = () => {   //get identifiers for check ID
     try {
       const identifiers = fs.readFileSync(jsonIdPath, 'utf8');
       return JSON.parse(identifiers);
@@ -307,64 +307,72 @@ const readIdentifiers = () => {
     }
   };
 
-  export function checkId(Id){
+  export function checkId(Id){ // check ID for accepting elering price request
     const identifiers = readIdentifiers()
     return identifiers.includes(Id)
   }
 
   export function AnalogData(data) {
-   
     const dailyData = {};
-    
+
     data.forEach(item => {
-      const date = new Date(item._time).toLocaleDateString('ru-RU');
+      const date = new Date(item._time).toLocaleDateString('ru-RU', {
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit'
+      });
+  
       const keyDescription = `${item.Area}/${item.Group}`;
       const keyMetric = `${item.Group}-${item.Description}`;
-      
-      
+  
       if (!dailyData[date]) {
         dailyData[date] = { "Kuupaev": date };
       }
-      
-      
+  
       if (!dailyData[date][keyDescription]) {
         dailyData[date][keyDescription] = "";
       }
-      
-      dailyData[date][keyMetric] = item.Realvalue;
+     
+      dailyData[date][keyMetric] = item.Realvalue.toFixed(3);
     });
     
-    
     const resultArray = Object.values(dailyData).sort((a, b) => new Date(a.Kuupaev) - new Date(b.Kuupaev));
-    
-    
     const keys = Object.keys(resultArray[0]).filter(key => key !== "Kuupaev");
   
     const calculateStatistics = (key) => {
-      const values = resultArray.map(item => item[key]).filter(v => v !== undefined && v !== null);
-      return {
-        Maksimum: Math.max(...values),
-        Keskmine: values.length ? Math.round(values.reduce((acc, v) => acc + v, 0) / values.length) : null,
-        Minimum: Math.min(...values)
-      };
+      const values = resultArray
+        .map(item => item[key])
+        .filter(v => v !== undefined && v !== null); 
+      if (values.length > 0) {
+        return {
+          Maksimum: Math.max(...values),
+          Keskmine: (values.reduce((acc, v) => acc + parseFloat(v), 0) / values.length).toFixed(3), 
+          Minimum: Math.min(...values)
+        };
+      } else {
+        return { Maksimum: "", Keskmine: "", Minimum: "" }; 
+      }
     };
   
-    
     const maxEntry = { "Kuupaev": "Maksimum" };
     const avgEntry = { "Kuupaev": "Keskmine" };
     const minEntry = { "Kuupaev": "Minimum" };
   
     keys.forEach(key => {
       const stats = calculateStatistics(key);
-      maxEntry[key] = stats.Maksimum;
-      avgEntry[key] = stats.Keskmine;
-      minEntry[key] = stats.Minimum;
+      maxEntry[key] = stats.Maksimum !== 0 ? stats.Maksimum.toFixed(3) : "";
+      avgEntry[key] = stats.Keskmine !== "NaN" ? stats.Keskmine : "";
+      minEntry[key] = stats.Minimum !== 0 ? stats.Minimum.toFixed(3) : "";
     });
   
     resultArray.push(maxEntry, avgEntry, minEntry);
   
     return resultArray;
   }
+  
 
 /*let mailOptions = {
     from: 'oleks.cherkashyn@gmail.com',

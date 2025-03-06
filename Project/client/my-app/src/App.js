@@ -3,7 +3,7 @@ import Home from "./pages/Home"
 import AnalogHome from "./pages/AnalogHome"
 import Table from "./pages/Table"
 import Data from "./pages/Data"
-import Data from "./pages/AnalogData"
+import AnalogData from "./pages/AnalogData"
 import Login from "./pages/Login"
 
 const Layout =()=> {
