@@ -143,7 +143,6 @@ const Array = tags.filter(item => {
                 <div className="data-filters">Kirjeldus
                 <input required type="text" placeholder='Kirjeldus' name='Description' onChange={handleChange}></input>
                 </div>
-                </div>
                 <div className="filter-buttons"><button onClick={handleArray}>Otsi</button>
                 <button style={{marginLeft: '10px'}} onClick={fetchData}>Refresh Data</button>
                 </div>
@@ -186,6 +185,7 @@ const Array = tags.filter(item => {
         {err &&<p>{err}</p>} 
         </div>               
     </div> 
+    </div>
     );
 
 }
