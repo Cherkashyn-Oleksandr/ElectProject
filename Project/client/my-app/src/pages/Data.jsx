@@ -27,8 +27,8 @@ const Data = () =>{
         header: key
     }));
     if(LoendurChecked == false && LoendurChecked != null){
-        console.log(LoendurChecked)
         ClearArray = deleteLoendur(AllData)
+        console.log(ClearArray)
         chartArray = transformChartArray(ClearArray)
     }else{
         ClearArray = AllData
@@ -58,7 +58,7 @@ const Data = () =>{
     // create excel file 
     const exportExcel = () => {
         import('xlsx').then((xlsx) => {
-            const worksheet = xlsx.utils.json_to_sheet(AllData);
+            const worksheet = xlsx.utils.json_to_sheet(ClearArray);
             const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
             const excelBuffer = xlsx.write(workbook, {
                 bookType: 'xlsx',
@@ -115,7 +115,6 @@ const Data = () =>{
     const options = {
         chart: {
           title: "Objekt",
-          //subtitle: "15.4.2024 - 17.4.2024",
         },
         explorer: {
             actions:['dragToZoom','rightClickToReset'],
@@ -150,9 +149,7 @@ function deleteLoendur(data) {
         const newItem = {};
 
         for (const key in item) {
-            if (item[key]) {
-                newItem[key] = item[key].replace(/\s?\(\d+(\.\d+)?\)$/, '');
-            } else {
+            if (!key.endsWith('_loendur')) {
                 newItem[key] = item[key];
             }
         }
@@ -164,7 +161,7 @@ function deleteLoendur(data) {
     <div>
         <div>
         <div className="App">
-      <h1 style={{ textAlign: 'center' }}>Firma nimi</h1>
+      <h1 style={{ textAlign: 'center' }}>Saku Maja</h1>
       <div style={{ textAlign: 'left', marginLeft: '20px' }}>
         <button onClick={handleSubmit} alt="">Tagasi</button>
       </div>

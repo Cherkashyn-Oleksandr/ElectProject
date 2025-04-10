@@ -1,14 +1,13 @@
 import {db, bucket} from "../db.js";
-import { convertArray, getArray, transformArray, getHourlyArray, splitArray, checkId, AnalogData } from "./data.js";
+import { convertArray, getArray, transformArray, getHourlyArray, splitArray, checkId } from "./data.js";
 // get data for treeview table
 export const getAllData = async (req,res)=>{
-  let measurement = req.query
   let newarray = [];
   let array = [];
   let fluxQuery = `
   from(bucket: "${bucket}")
-    |> range(start: -1d)  
-    |> filter(fn: (r) => r._measurement == ${measurement})
+    |> range(start: -2h)  
+    |> filter(fn: (r) => r._measurement == "Data")
     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
     |> keep(columns: ["_time", "Description", "Area", "Group"])
     |> group(columns: ["Group"])
@@ -29,14 +28,12 @@ export const getAllData = async (req,res)=>{
         reject();
       },
       complete: () => {
-        //console.log('\nSuccess');
         resolve();
 
       },
     };
     db.queryRows(fluxQuery, observer);
   })
-
   } catch (error) {
     console.error('Error querying data:', error);
     res.status(500).json({ error: error.message });
@@ -46,7 +43,6 @@ export const getAllData = async (req,res)=>{
 }
 //get data with inserted filters
 export const getFilterData = async (req,res) =>{
-  let measurement = req.query
   let newarray = []
   let finalarray = []
   if(req.body.checked[0] == undefined){
@@ -64,7 +60,7 @@ export const getFilterData = async (req,res) =>{
       for (let i = 0; i < tagArray.length; i++) {
     const fluxQuery = `from(bucket: "${bucket}")
     |> range(start: -1y)  
-    |> filter(fn: (r) => r._measurement == ${measurement} and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
+    |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
     try {
    
@@ -83,8 +79,6 @@ export const getFilterData = async (req,res) =>{
           reject();
         },
         complete: () => {
-         //console.log('\nSuccess');
-         //console.log(array)
           resolve();
   
         },
@@ -105,7 +99,7 @@ export const getFilterData = async (req,res) =>{
           for (let i = 0; i < tagArray.length; i++) {
                 const fluxQuery = `from(bucket: "${bucket}")
                 |> range(start: ${req.body.formattedFilters.StartDate})
-                |> filter(fn: (r) => r._measurement == ${measurement} and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
+                |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                 |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                 try {
    
@@ -123,9 +117,7 @@ export const getFilterData = async (req,res) =>{
                       reject();
                     },
                     complete: () => {
-                      //console.log('\nSuccess');
                       resolve();
-              
                     },
                   };
                   db.queryRows(fluxQuery, observer);
@@ -144,7 +136,7 @@ export const getFilterData = async (req,res) =>{
               for (let i = 0; i < tagArray.length; i++) {
                     const fluxQuery = `from(bucket: "${bucket}")
                     |> range(start: 0, stop: ${req.body.formattedFilters.EndDate})
-                    |> filter(fn: (r) => r._measurement == ${measurement} and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
+                    |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                     try {
    
@@ -162,7 +154,6 @@ export const getFilterData = async (req,res) =>{
                           reject();
                         },
                         complete: () => {
-                          //console.log('\nSuccess');
                           resolve();
                   
                         },
@@ -182,7 +173,7 @@ export const getFilterData = async (req,res) =>{
                 for (let i = 0; i < tagArray.length; i++) {
                     const fluxQuery = `from(bucket: "${bucket}")
                     |> range(start: ${req.body.formattedFilters.StartDate}, stop: ${req.body.formattedFilters.EndDate})
-                    |> filter(fn: (r) => r._measurement == ${measurement} and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
+                    |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                     try {
    
@@ -200,7 +191,6 @@ export const getFilterData = async (req,res) =>{
                           
                         },
                         complete: () => {
-                          //console.log('\nSuccess');
                           resolve();
                   
                         },
@@ -221,10 +211,6 @@ export const getFilterData = async (req,res) =>{
     let checkarray = array.some((element) => true)
     if(checkarray == false){
       return res.status(404).json("No data")
-    }
-    if(measurement == "Analog"){
-      analogArray = AnalogData(array)
-      res.status(200).json(analogArray)
     }
     if(req.body.hourchecked == true){
    finalarray = getHourlyArray(array)

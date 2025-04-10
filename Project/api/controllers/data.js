@@ -36,7 +36,7 @@ export function convertArray(originalArray) {
         let descriptionIndex = tempMap[Area].children[groupIndex].children.findIndex(child => child.label === Description);
         if(descriptionIndex === -1) {
         tempMap[Area].children[groupIndex].children.push({
-            value: `${Description}, ${Group}`,
+            value: `${Description}! ${Group}`,
             label: Description
         });
     }
@@ -63,10 +63,10 @@ export function getArray(originalArray) {
 
         // adding difference if Loendur grow
         if (existingItem) {
-            const difference = item.Realvalue - existingItem.Loendur;
+            const difference = item.Realvalue - existingItem.StartLoendur;
             if (difference > 0) {
                 existingItem.Loendur = item.Realvalue;
-                existingItem.Difference += difference; 
+                existingItem.Difference = difference; 
             }
         } else {
             // create new object
@@ -90,9 +90,9 @@ export function getArray(originalArray) {
             const currentDate = result[key][dates[i]];
             if (i > 0) {
                 const previousDate = result[key][dates[i - 1]];
-                const difference = currentDate.StartLoendur - previousDate.Loendur;
+                const difference = currentDate.Loendur - previousDate.Loendur;
                 if (difference > 0) {
-                    currentDate.Difference += difference;
+                    currentDate.Difference = difference;
                 }
             }
             finalResult.push(currentDate);
@@ -122,10 +122,10 @@ export function getHourlyArray(originalArray) {
 
         // Adding difference if Loendur grows
         if (existingItem) {
-            const difference = item.Realvalue - existingItem.Loendur;
+            const difference = item.Realvalue - existingItem.StartLoendur;
             if (difference > 0) {
                 existingItem.Loendur = item.Realvalue;
-                existingItem.Difference += difference;
+                existingItem.Difference = difference;
             }
         } else {
             // Create new object
@@ -145,20 +145,24 @@ export function getHourlyArray(originalArray) {
     const finalResult = [];
     Object.keys(result).forEach(key => {
         const hours = Object.keys(result[key]).sort((a, b) => new Date(a.split(" ")[1].split(".").reverse().join("-") + ' ' + a.split(" ")[0]) - new Date(b.split(" ")[1].split(".").reverse().join("-") + ' ' + b.split(" ")[0]));
-        console.log(result[key])
+        
         for (let i = 0; i < hours.length; i++) {
             const currentHour = result[key][hours[i]];
+            console.log(currentHour)
             if (i > 0) {
                 const previousHour = result[key][hours[i - 1]];
-                const difference = currentHour.StartLoendur - previousHour.Loendur;
+                console.log(previousHour)
+                const difference = currentHour.Loendur - previousHour.Loendur;
+                console.log(difference)
                 if (difference > 0) {
-                    currentHour.Difference += difference;
+                    currentHour.Difference = difference;
+                    console.log(currentHour.Difference)
                 }
             }
             finalResult.push(currentHour);
         }
     });
-
+    console.log(finalResult)
     return finalResult;
 }
 export function transformArray(originalArray) {
@@ -187,31 +191,24 @@ export function transformArray(originalArray) {
         const date = item.Kuupaev;
         const groupAreaKey = `${item.Area}/${item.Group}`;
         const groupDescriptionKey = `${item.Group}-${item.Description}`;
+        const groupDescriptionLoendurKey = `${groupDescriptionKey}_loendur`;
 
-        // groupAreaKey is ok
+        // Initialize if not exists
         if (!dates[date][groupAreaKey]) {
             dates[date][groupAreaKey] = '';
         }
-        
-        const differenceRound = item.Difference - Math.floor(item.Difference);
-        const loendurRound = item.Loendur - Math.floor(item.Loendur);
-        
-        let formattedValue;
-        if (differenceRound < 0.5 && loendurRound < 0.5) {
-            formattedValue = `${Math.round(item.Difference)} (${Math.round(item.Loendur)})`;
-        } else if (differenceRound >= 0.5 && loendurRound < 0.5) {
-            formattedValue = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur)})`;
-        } else if (differenceRound >= 0.5 && loendurRound >= 0.5) {
-            formattedValue = `${Math.round(item.Difference * 10) / 10} (${Math.round(item.Loendur * 10) / 10})`;
-        } else {
-            formattedValue = `${Math.round(item.Difference)} (${Math.round(item.Loendur * 10) / 10})`;
-        }
-        
-        dates[date][groupDescriptionKey] = formattedValue;
 
-        // Update totals and counts for calculations
-        const numericDifference = parseFloat(formattedValue.split(' ')[0]);
+        // Format values
+        const diffFormatted = item.Difference.toFixed(1).replace(/\.0+$/, '');
+        const loendurFormatted = item.Loendur.toFixed(1).replace(/\.0+$/, '');
 
+        // Save separately
+        dates[date][groupDescriptionKey] = diffFormatted;
+        dates[date][groupDescriptionLoendurKey] = loendurFormatted;
+
+        const numericDifference = parseFloat(diffFormatted);
+
+        // Initialize stats
         if (!totals[groupDescriptionKey]) {
             totals[groupDescriptionKey] = { Difference: 0 };
             counts[groupDescriptionKey] = 0;
@@ -231,14 +228,10 @@ export function transformArray(originalArray) {
         const orderedDay = { Kuupaev: day.Kuupaev };
 
         uniqueGroupAreas.forEach(groupArea => {
-            const areaGroupKey = groupArea;
-
-            // areaGroupKey is ok
-            if (!day[areaGroupKey]) {
-                orderedDay[areaGroupKey] = '';
+            if (!day[groupArea]) {
+                orderedDay[groupArea] = '';
             }
 
-            // Add keys with loendur
             Object.keys(day).forEach(key => {
                 if (key.startsWith(groupArea.split('/')[1])) {
                     orderedDay[key] = day[key];
@@ -249,20 +242,20 @@ export function transformArray(originalArray) {
         transformedArray.push(orderedDay);
     });
 
-    // Add summary rows (Summa, Maksimum, Keskmine, Minimum)
+    // Add summary rows
     const summaryRows = ['Summa', 'Maksimum', 'Keskmine', 'Minimum'].map(summaryType => {
         const summaryRow = { Kuupaev: summaryType };
         uniqueGroupAreas.forEach(groupArea => {
             summaryRow[groupArea] = '';
             Object.keys(totals).forEach(key => {
+                const loendurKey = `${key}_loendur`;
                 const SummaRound = totals[key].Difference - Math.floor(totals[key].Difference);
                 let summaryValue;
+
                 if (summaryType === 'Summa') {
-                    if(SummaRound >= 0.5){
-                        summaryValue = `${Math.round(totals[key].Difference * 10) / 10}`;
-                    }else{
-                    summaryValue = `${Math.round(totals[key].Difference)}`;
-                }
+                    summaryValue = SummaRound >= 0.5
+                        ? `${Math.round(totals[key].Difference * 10) / 10}`
+                        : `${Math.round(totals[key].Difference)}`;
                 } else if (summaryType === 'Maksimum') {
                     summaryValue = `${maxValues[key].Difference}`;
                 } else if (summaryType === 'Keskmine') {
@@ -270,8 +263,10 @@ export function transformArray(originalArray) {
                 } else if (summaryType === 'Minimum') {
                     summaryValue = `${minValues[key].Difference}`;
                 }
+
                 if (key.startsWith(groupArea.split('/')[1])) {
                     summaryRow[key] = summaryValue;
+                    summaryRow[loendurKey] = ''; // Loendur stats not calculated here
                 }
             });
         });
@@ -282,11 +277,12 @@ export function transformArray(originalArray) {
 
     return transformedArray;
 }
+
 export function splitArray(strings) {
     const result = [];
 
     strings.forEach(string => {
-        const [Description, Group] = string.split(', ');
+        const [Description, Group] = string.split('! ');
         result.push({ Group, Description });
     });
 
@@ -312,65 +308,11 @@ const readIdentifiers = () => {
     return identifiers.includes(Id)
   }
 
-  export function AnalogData(data) {
-   
-    const dailyData = {};
-    
-    data.forEach(item => {
-      const date = new Date(item._time).toLocaleDateString('ru-RU');
-      const keyDescription = `${item.Area}/${item.Group}`;
-      const keyMetric = `${item.Group}-${item.Description}`;
-      
-      
-      if (!dailyData[date]) {
-        dailyData[date] = { "Kuupaev": date };
-      }
-      
-      
-      if (!dailyData[date][keyDescription]) {
-        dailyData[date][keyDescription] = "";
-      }
-      
-      dailyData[date][keyMetric] = item.Realvalue;
-    });
-    
-    
-    const resultArray = Object.values(dailyData).sort((a, b) => new Date(a.Kuupaev) - new Date(b.Kuupaev));
-    
-    
-    const keys = Object.keys(resultArray[0]).filter(key => key !== "Kuupaev");
-  
-    const calculateStatistics = (key) => {
-      const values = resultArray.map(item => item[key]).filter(v => v !== undefined && v !== null);
-      return {
-        Maksimum: Math.max(...values),
-        Keskmine: values.length ? Math.round(values.reduce((acc, v) => acc + v, 0) / values.length) : null,
-        Minimum: Math.min(...values)
-      };
-    };
-  
-    
-    const maxEntry = { "Kuupaev": "Maksimum" };
-    const avgEntry = { "Kuupaev": "Keskmine" };
-    const minEntry = { "Kuupaev": "Minimum" };
-  
-    keys.forEach(key => {
-      const stats = calculateStatistics(key);
-      maxEntry[key] = stats.Maksimum;
-      avgEntry[key] = stats.Keskmine;
-      minEntry[key] = stats.Minimum;
-    });
-  
-    resultArray.push(maxEntry, avgEntry, minEntry);
-  
-    return resultArray;
-  }
-
-/*let mailOptions = {
+/* let mailOptions = {
     from: 'oleks.cherkashyn@gmail.com',
-    to: 'samsungmarvel2@gmail.com',
-    subject: 'Email from Node-App: A Test Message!',
-    text: 'Some content to send'
+    to: 'artjom@systemtest.ee',
+    subject: 'InfluxDB No Data',
+    text: 'InfluxDB got a problem'
 };
 
 // e-mail transporter configuration
@@ -382,7 +324,7 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-cron.schedule('* * * * *', () => {
+cron.schedule('0 * * * *', () => {
 // Send e-mail
 transporter.sendMail(mailOptions, function(error, info){
     if (error) {
@@ -391,4 +333,4 @@ transporter.sendMail(mailOptions, function(error, info){
       console.log('Email sent: ' + info.response);
     }
 });
-});*/
+}); */

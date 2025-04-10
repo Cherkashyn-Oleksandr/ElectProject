@@ -25,7 +25,6 @@ const Data = () =>{
     }));
 
     chartArray = transformChartArray(AllData)
-
     exportColumns = columns.map((col) => ({ title: col.header, dataKey: col.field }));
 }
     // create csv
@@ -149,14 +148,16 @@ function transformChartArray(originalArray) {
     </div>
         
         <div >
-            <div >
-        <Chart
+            <div style={{overflowX:'auto',overflowY:'hidden', width:'100%'}}>
+    <div style={{minWidth:'1200px'}}>
+    <Chart
       chartType="LineChart"
-      width="100%"
-      height="800px"
+      width="3000px"
+      height="700px"
       data={chartArray}
       options={options}
     />
+    </div>
     </div>
     <div className="card" >
         <Tooltip target=".export-buttons>button" position="bottom" />

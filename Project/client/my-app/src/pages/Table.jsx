@@ -9,7 +9,7 @@ const Table = () =>{
     const handleTomorrowSubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.get(`http://172.17.0.3:8800/api/data/table/tomorrow?Id=${identifier.Id}`)
+         const res = await axios.get(`https://172.17.0.5:8800/api/data/table/tomorrow?Id=${identifier.Id}`)
         setData(res.data)
     }
         catch(err){
@@ -19,7 +19,7 @@ const Table = () =>{
     const handleTodaySubmit = async e =>{
         e.preventDefault()
         try{
-         const res = await axios.get(`http://172.17.0.3:8800/api/data/table/today?Id=${identifier.Id}`)
+         const res = await axios.get(`https://172.17.0.5:8800/api/data/table/today?Id=${identifier.Id}`)
         setData(res.data)
     }
         catch(err){

@@ -8,11 +8,10 @@ import "react-datetime/css/react-datetime.css";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import "../Home.css"
 
-
 const Home = () => {
     const fetchData = async ()=>{
         try{
-            const res = await axios.get(`http://172.17.0.3:8800/api/data?measurement=${measurement}`);
+            const res = await axios.get("https://localhost:8800/api/data");
             setTags(res.data);
         }catch(err){
             console.log(err);
@@ -24,9 +23,9 @@ const Home = () => {
         fetchData();
     },[]);
     
-    const measurement = "Data"
-
     const currentDate = new Date()
+
+    currentDate.setHours(0, 0, 0, 0);
 
     const previousDay = new Date(currentDate)
 
@@ -87,11 +86,11 @@ const Home = () => {
             EndDate: filters.EndDate.toISOString(),
         };
         try{
-         const res = await axios.post(`http://172.17.0.3:8800/api/data/all?measurement=${measurement}`, {checked, formattedFilters, hourchecked, loendurchecked})
+         const res = await axios.post("https://localhost:8800/api/data/all", {checked, formattedFilters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
          sessionStorage.setItem('Dates',JSON.stringify(formattedFilters))
          sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
-        navigate("/data")
+         window.open("/data", "_blank");
     }
         catch(err){
             setError(err.response.data)
@@ -114,22 +113,16 @@ const Array = tags.filter(item => {
             );
         });
         hasDescription = item.children.some(child => child.children.length > 0);
-        
-
     }
     let hasGroup = false;
     if (Group !== "") {
         item.children = item.children.filter(child => child.value.toLowerCase().includes(Group.toLowerCase()));
         hasGroup = item.children.length > 0;
     }
-
-
     
     return hasArea || hasGroup || hasDescription;
 
-});
-
-    
+    }); 
     setTags(Array)
         }
         catch(err){
@@ -141,14 +134,14 @@ const Array = tags.filter(item => {
             <div className="left-container">
                 <div className="label">Objektid</div>
                 <div className="object-filter">
-                <div className="data-filters">Area
-                <input required type="text" placeholder='Area' name='Area' onChange={handleChange}></input>
+                <div className="data-filters">Ala
+                <input required type="text" placeholder='Ala' name='Area' onChange={handleChange}></input>
                 </div>
-                <div className="data-filters">Group
-                <input required type="text" placeholder='Group' name='Group' onChange={handleChange}></input>
+                <div className="data-filters">Grupp
+                <input required type="text" placeholder='Grupp' name='Group' onChange={handleChange}></input>
                 </div>
-                <div className="data-filters">Description
-                <input required type="text" placeholder='Description' name='Description' onChange={handleChange}></input>
+                <div className="data-filters">Kirjeldus
+                <input required type="text" placeholder='Kirjeldus' name='Description' onChange={handleChange}></input>
                 </div>
                 </div>
                 <div className="filter-buttons"><button onClick={handleArray}>Otsi</button>
@@ -174,7 +167,7 @@ const Array = tags.filter(item => {
             <div className="checkbox">
                 <div className="checkbox-item">
                 <Checkbox
-                label="Päeva Raport"
+                label="Andmed tunni kaupa"
                 value={hourchecked}
                 onChange={handleHourCheckbox}
                 />
@@ -189,11 +182,6 @@ const Array = tags.filter(item => {
             </div>
             <div className="raport-button">
             <button onClick={handleSubmit} >Raport</button>
-                
-                
-        </div>
-        <div className="navigate-button">
-        <button onClick={navigate("/analog")} >Analog Data</button>
         </div>
         {err &&<p>{err}</p>} 
         </div>               
