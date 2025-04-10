@@ -1,6 +1,5 @@
 import {db, bucket} from "../db.js";
 import { convertArray, getArray, transformArray, getHourlyArray, splitArray, checkId } from "./data.js";
-import { convertArray, getArray, transformArray, getHourlyArray, splitArray, checkId } from "./data.js";
 // get data for treeview table
 export const getAllData = async (req,res)=>{
   let newarray = [];

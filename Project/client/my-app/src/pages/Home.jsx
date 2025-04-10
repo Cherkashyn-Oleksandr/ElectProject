@@ -143,8 +143,10 @@ const Array = tags.filter(item => {
                 <div className="data-filters">Kirjeldus
                 <input required type="text" placeholder='Kirjeldus' name='Description' onChange={handleChange}></input>
                 </div>
+                </div>
                 <div className="filter-buttons"><button onClick={handleArray}>Otsi</button>
                 <button style={{marginLeft: '10px'}} onClick={fetchData}>Refresh Data</button>
+                
                 </div>
                 <CheckboxTree className="checkbox"
                 checked={checked}
@@ -153,6 +155,8 @@ const Array = tags.filter(item => {
                 onCheck={onCheck}
                 onExpand={onExpand}
                 />  
+            
+            
             </div>
         <div className="right-container">
             <div className="datetime">
@@ -185,7 +189,7 @@ const Array = tags.filter(item => {
         {err &&<p>{err}</p>} 
         </div>               
     </div> 
-    </div>
+    
     );
 
 }

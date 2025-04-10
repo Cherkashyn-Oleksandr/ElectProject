@@ -1,16 +1,14 @@
 import express from "express"
 import fs  from "fs"
 import https from "https"
-import fs  from "fs"
-import https from "https"
 import routes from "./routes/data.js"
 const app = express()
 const options = {
   rejectUnauthorized: false,
   requestCert: false,//add when working with https sites
   agent: false,//add when working with https sites
-  key: fs.readFileSync('C:/Apps/Aruand Programm/Project/api/certs/private.key'),
-  cert: fs.readFileSync('C:/Apps/Aruand Programm/Project/api/certs/certificate.crt'), 
+  key: fs.readFileSync('C:/Users/Oleksandr/ElectProject/Project/api/certs/private.key'),
+  cert: fs.readFileSync('C:/Users/Oleksandr/ElectProject/Project/api/certs/certificate.crt'), 
 };
 app.use(express.json())
 app.use(function(req, res, next) {
