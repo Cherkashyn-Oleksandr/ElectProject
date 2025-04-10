@@ -17,24 +17,15 @@ const Data = () =>{
     const [dateTime, setDateTime] = useState('');
     let columns = [] //columns for table
     let chartArray = [] //Array for chart
-    let ClearArray = []
-    var Dates = JSON.parse(sessionStorage.getItem('Dates')) //dates for chart option
     var AllData = JSON.parse(sessionStorage.getItem('Array')) //data for table
-    console.log(AllData)
-    var LoendurChecked = JSON.parse(sessionStorage.getItem('LoendurСhecked'));
     if(AllData != null){
         columns = Object.keys(AllData[0]).map(key => ({
         field: key,
         header: key
     }));
-    if(LoendurChecked == false && LoendurChecked != null){
-        ClearArray = deleteLoendur(AllData)
-        console.log(ClearArray)
-        chartArray = transformChartArray(ClearArray)
-    }else{
-        ClearArray = AllData
+    console.log(AllData)
     chartArray = transformChartArray(AllData)
-}
+    console.log(chartArray)
     exportColumns = columns.map((col) => ({ title: col.header, dataKey: col.field }));
 }
     // create csv
@@ -59,7 +50,7 @@ const Data = () =>{
     // create excel file 
     const exportExcel = () => {
         import('xlsx').then((xlsx) => {
-            const worksheet = xlsx.utils.json_to_sheet(ClearArray);
+            const worksheet = xlsx.utils.json_to_sheet(AllData);
             const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
             const excelBuffer = xlsx.write(workbook, {
                 bookType: 'xlsx',
@@ -131,7 +122,7 @@ const Data = () =>{
 function transformChartArray(originalArray) {
     const filteredArray = originalArray.filter(item => item.Kuupaev !== "Summa");
     // Collect headers
-    const headers = Object.keys(originalArray[0]).filter(key => key.includes("-"));
+    const headers = Object.keys(originalArray[0]).filter(key => key.includes("-")& key.endsWith("avamised"));
     // Create new array
     const newArray = [["Kuupaev", ...headers]];
     filteredArray.forEach(item => {
@@ -145,19 +136,6 @@ function transformChartArray(originalArray) {
 
     return newArray;
 }
-function deleteLoendur(data) {
-    return data.map(item => {
-        const newItem = {};
-
-        for (const key in item) {
-            if (!key.endsWith('_loendur')) {
-                newItem[key] = item[key];
-            }
-        }
-
-        return newItem;
-    });
-}
     return(
     <div>
         <div>
@@ -170,7 +148,7 @@ function deleteLoendur(data) {
     </div>
         <div className="card" >
         <Tooltip target=".export-buttons>button" position="bottom" />
-        <DataTable ref={dt}  size="small" value={ClearArray} header={header} className="datatable-responsive" 
+        <DataTable ref={dt}  size="small" value={AllData} header={header} className="datatable-responsive" 
         removableSort 
         stripedRows showGridlines paginator rows={50} rowsPerPageOptions={[5, 10, 25, 50]} 
         tableStyle={{ minWidth: '50rem' }}>

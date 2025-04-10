@@ -148,24 +148,19 @@ export function getHourlyArray(originalArray) {
         
         for (let i = 0; i < hours.length; i++) {
             const currentHour = result[key][hours[i]];
-            console.log(currentHour)
             if (i > 0) {
                 const previousHour = result[key][hours[i - 1]];
-                console.log(previousHour)
                 const difference = currentHour.Loendur - previousHour.Loendur;
-                console.log(difference)
                 if (difference > 0) {
                     currentHour.Difference = difference;
-                    console.log(currentHour.Difference)
                 }
             }
             finalResult.push(currentHour);
         }
     });
-    console.log(finalResult)
     return finalResult;
 }
-export function transformArray(originalArray) {
+export function transformArray(originalArray, loendurchecked) {
     const transformedArray = [];
     const dates = {};
 
@@ -191,24 +186,32 @@ export function transformArray(originalArray) {
         const date = item.Kuupaev;
         const groupAreaKey = `${item.Area}/${item.Group}`;
         const groupDescriptionKey = `${item.Group}-${item.Description}`;
-        const groupDescriptionLoendurKey = `${groupDescriptionKey}_loendur`;
 
         // Initialize if not exists
         if (!dates[date][groupAreaKey]) {
             dates[date][groupAreaKey] = '';
         }
 
-        // Format values
-        const diffFormatted = item.Difference.toFixed(1).replace(/\.0+$/, '');
-        const loendurFormatted = item.Loendur.toFixed(1).replace(/\.0+$/, '');
+        // Форматируем значение Difference
+        let formattedDifference = `${item.Difference.toFixed(1).replace(/\.0+$/,'')}`;
 
-        // Save separately
-        dates[date][groupDescriptionKey] = diffFormatted;
-        dates[date][groupDescriptionLoendurKey] = loendurFormatted;
+        // Если includeLoendur = true, создаем отдельное значение для Loendur
+        let formattedLoendur = '';
+        if (loendurchecked) {
+            formattedLoendur = `${item.Loendur.toFixed(1).replace(/\.0+$/,'')}`;
+        }
 
-        const numericDifference = parseFloat(diffFormatted);
+        // Добавляем значения в объект
+        dates[date][groupDescriptionKey] = formattedDifference;
 
-        // Initialize stats
+        if (loendurchecked) {
+            // Если нужно добавить Loendur, добавляем его в отдельный столбец
+            dates[date][`${groupDescriptionKey} Loendur`] = formattedLoendur;
+        }
+
+        // Обновляем суммы и подсчеты для статистики
+        const numericDifference = parseFloat(formattedDifference);
+
         if (!totals[groupDescriptionKey]) {
             totals[groupDescriptionKey] = { Difference: 0 };
             counts[groupDescriptionKey] = 0;
@@ -222,16 +225,19 @@ export function transformArray(originalArray) {
         minValues[groupDescriptionKey].Difference = Math.min(minValues[groupDescriptionKey].Difference, numericDifference);
     });
 
-    // Create array
+    // Создаем итоговый массив
     Object.keys(dates).forEach(dateKey => {
         const day = dates[dateKey];
         const orderedDay = { Kuupaev: day.Kuupaev };
 
         uniqueGroupAreas.forEach(groupArea => {
-            if (!day[groupArea]) {
-                orderedDay[groupArea] = '';
+            const areaGroupKey = groupArea;
+
+            if (!day[areaGroupKey]) {
+                orderedDay[areaGroupKey] = '';
             }
 
+            // Добавляем значения с учетом Loendur
             Object.keys(day).forEach(key => {
                 if (key.startsWith(groupArea.split('/')[1])) {
                     orderedDay[key] = day[key];
@@ -242,20 +248,20 @@ export function transformArray(originalArray) {
         transformedArray.push(orderedDay);
     });
 
-    // Add summary rows
+    // Добавляем итоговые строки (Summa, Maksimum, Keskmine, Minimum)
     const summaryRows = ['Summa', 'Maksimum', 'Keskmine', 'Minimum'].map(summaryType => {
         const summaryRow = { Kuupaev: summaryType };
         uniqueGroupAreas.forEach(groupArea => {
             summaryRow[groupArea] = '';
             Object.keys(totals).forEach(key => {
-                const loendurKey = `${key}_loendur`;
                 const SummaRound = totals[key].Difference - Math.floor(totals[key].Difference);
                 let summaryValue;
-
                 if (summaryType === 'Summa') {
-                    summaryValue = SummaRound >= 0.5
-                        ? `${Math.round(totals[key].Difference * 10) / 10}`
-                        : `${Math.round(totals[key].Difference)}`;
+                    if(SummaRound >= 0.5){
+                        summaryValue = `${Math.round(totals[key].Difference * 10) / 10}`;
+                    }else{
+                    summaryValue = `${Math.round(totals[key].Difference)}`;
+                }
                 } else if (summaryType === 'Maksimum') {
                     summaryValue = `${maxValues[key].Difference}`;
                 } else if (summaryType === 'Keskmine') {
@@ -263,10 +269,8 @@ export function transformArray(originalArray) {
                 } else if (summaryType === 'Minimum') {
                     summaryValue = `${minValues[key].Difference}`;
                 }
-
                 if (key.startsWith(groupArea.split('/')[1])) {
                     summaryRow[key] = summaryValue;
-                    summaryRow[loendurKey] = ''; // Loendur stats not calculated here
                 }
             });
         });
@@ -277,6 +281,7 @@ export function transformArray(originalArray) {
 
     return transformedArray;
 }
+
 
 export function splitArray(strings) {
     const result = [];

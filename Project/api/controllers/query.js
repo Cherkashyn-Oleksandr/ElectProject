@@ -224,8 +224,8 @@ export const getFilterData = async (req,res) =>{
    finalarray = getArray(array)
 
 }
-    newarray = transformArray(finalarray)
-    res.status(200).json(newarray)
+  newarray = transformArray(finalarray,req.body.loendurchecked)
+  res.status(200).json(newarray)
 }
 // elering electricity price
 export const getTomorrowData = async (req,res) =>{

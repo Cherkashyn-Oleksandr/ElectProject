@@ -88,8 +88,6 @@ const Home = () => {
         try{
          const res = await axios.post("https://localhost:8800/api/data/all", {checked, formattedFilters, hourchecked, loendurchecked})
          sessionStorage.setItem('Array',JSON.stringify(res.data))
-         sessionStorage.setItem('Dates',JSON.stringify(formattedFilters))
-         sessionStorage.setItem('LoendurСhecked',JSON.stringify(loendurchecked))
          window.open("/data", "_blank");
     }
         catch(err){
