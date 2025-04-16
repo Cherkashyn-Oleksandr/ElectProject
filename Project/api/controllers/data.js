@@ -36,7 +36,7 @@ export function convertArray(originalArray) {
         let descriptionIndex = tempMap[Area].children[groupIndex].children.findIndex(child => child.label === Description);
         if(descriptionIndex === -1) {
         tempMap[Area].children[groupIndex].children.push({
-            value: `${Description}! ${Group}`,
+            value: `${Description}!${Group}`,
             label: Description
         });
     }
@@ -287,7 +287,7 @@ export function splitArray(strings) {
     const result = [];
 
     strings.forEach(string => {
-        const [Description, Group] = string.split('! ');
+        const [Description, Group] = string.split('!');
         result.push({ Group, Description });
     });
 

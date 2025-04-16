@@ -61,7 +61,6 @@ export const getFilterData = async (req,res) =>{
     const fluxQuery = `from(bucket: "${bucket}")
     |> range(start: -1y)  
     |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
-    |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
     try {
    
@@ -101,7 +100,6 @@ export const getFilterData = async (req,res) =>{
                 const fluxQuery = `from(bucket: "${bucket}")
                 |> range(start: ${req.body.formattedFilters.StartDate})
                 |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
-                |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                 |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                 try {
    
@@ -139,7 +137,6 @@ export const getFilterData = async (req,res) =>{
                     const fluxQuery = `from(bucket: "${bucket}")
                     |> range(start: 0, stop: ${req.body.formattedFilters.EndDate})
                     |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
-                    |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                     try {
    
@@ -176,7 +173,6 @@ export const getFilterData = async (req,res) =>{
                 for (let i = 0; i < tagArray.length; i++) {
                     const fluxQuery = `from(bucket: "${bucket}")
                     |> range(start: ${req.body.formattedFilters.StartDate}, stop: ${req.body.formattedFilters.EndDate})
-                    |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> filter(fn: (r) => r._measurement == "Data" and r.Description == "${tagArray[i].Description}" and r.Group == "${tagArray[i].Group}")
                     |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")`
                     try {
